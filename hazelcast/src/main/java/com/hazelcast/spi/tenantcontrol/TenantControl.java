@@ -16,11 +16,11 @@
 
 package com.hazelcast.spi.tenantcontrol;
 
+import com.hazelcast.nio.serialization.DataSerializable;
 import com.hazelcast.spi.annotation.Beta;
+import com.hazelcast.spi.impl.operationservice.Operation;
 import com.hazelcast.spi.impl.tenantcontrol.NoopTenantControl;
-
-import java.io.Closeable;
-import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * Hooks for multi-tenancy for application servers
@@ -33,8 +33,7 @@ import java.io.Serializable;
  * @author lprimak
  */
 @Beta
-public interface TenantControl extends Serializable {
-
+public interface TenantControl extends DataSerializable {
     /**
      * Default no-op tenant control
      */
@@ -43,18 +42,18 @@ public interface TenantControl extends Serializable {
     /**
      * Establish this tenant's thread-local context
      * Particular TenantControl implementation will control the details of how
-     * createRequestScope parameter is handled, but in general,
-     * if createRequestScope = false, only ClassLoader is set up,
-     * if createRequestScope = true, in addition to ClassLoader,
-     * other things like invocation, EJB/JPA/CDI context should be set up as well
      *
-     * In other words, if only app class needs to be resolved, set createRequestScope to false
-     * If actually calling into user's code, set createRequestScope to true
-     *
-     * @param createRequestScope whether to create CDI request scope for this context
      * @return handle to be able to close the tenant's scope.
      */
-    Closeable setTenant(boolean createRequestScope);
+    Closeable setTenant();
+
+    /**
+     * To be called when Hazelcast object is created
+     * @param destroyEventContext hook to decouple any Hazelcast object when the tenant is destroyed,
+     * This is used, for example, to delete all associated caches from the application when
+     * it gets undeployed, so there are no ClassCastExceptions afterwards
+     */
+    void distributedObjectCreated(Optional<DestroyEventContext> destroyEventContext);
 
     /**
      * To be called when the Hazelcast object attached to this tenant is destroyed.
@@ -65,5 +64,29 @@ public interface TenantControl extends Serializable {
      * Hazelcast object from the tenant
      * This is so the TenantControl itself can be garbage collected
      */
-    void unregister();
+    void distributedObjectDestroyed();
+
+    /**
+     * Checks if tenant app is loaded at the current time and classes are available
+     *
+     * @param op passed so the tenant can filter on who is calling
+     * @return true if tenant is loaded and classes are available
+     */
+    boolean isAvailable(Operation op);
+
+    /**
+     * clean up the thread to avoid potential class loader leaks
+     */
+    void clearThreadContext();
+
+    /**
+     * same to Java's Closeable interface, except close() method does not throw IOException
+     */
+    interface Closeable extends AutoCloseable {
+        /**
+         * Same as Java's close() except no exception is thrown
+         */
+        @Override
+        void close();
+    }
 }

@@ -20,9 +20,12 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spi.impl.SpiDataSerializerHook;
+import com.hazelcast.spi.impl.operationservice.Operation;
+import com.hazelcast.spi.tenantcontrol.DestroyEventContext;
 import com.hazelcast.spi.tenantcontrol.TenantControl;
 
-import java.io.Closeable;
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Default no-op implementation of TenantControl
@@ -30,12 +33,33 @@ import java.io.Closeable;
 public final class NoopTenantControl implements TenantControl, IdentifiedDataSerializable {
 
     @Override
-    public Closeable setTenant(boolean createRequestScope) {
+    public Closeable setTenant() {
         return NoopCloseable.INSTANCE;
     }
 
     @Override
-    public void unregister() {
+    public void distributedObjectCreated(Optional<DestroyEventContext> destroyEventContext) {
+    }
+
+    @Override
+    public void distributedObjectDestroyed() {
+    }
+
+    @Override
+    public void writeData(ObjectDataOutput out) throws IOException {
+    }
+
+    @Override
+    public void readData(ObjectDataInput in) throws IOException {
+    }
+
+    @Override
+    public void clearThreadContext() {
+    }
+
+    @Override
+    public boolean isAvailable(Operation op) {
+        return true;
     }
 
     private static final class NoopCloseable implements Closeable {
@@ -65,15 +89,5 @@ public final class NoopTenantControl implements TenantControl, IdentifiedDataSer
     @Override
     public int getClassId() {
         return SpiDataSerializerHook.NOOP_TENANT_CONTROL;
-    }
-
-    @Override
-    public void writeData(ObjectDataOutput out) {
-
-    }
-
-    @Override
-    public void readData(ObjectDataInput in) {
-
     }
 }

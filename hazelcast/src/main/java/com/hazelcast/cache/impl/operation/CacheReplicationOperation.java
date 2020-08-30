@@ -20,6 +20,7 @@ import com.hazelcast.cache.impl.CacheDataSerializerHook;
 import com.hazelcast.cache.impl.CachePartitionSegment;
 import com.hazelcast.cache.impl.ICacheRecordStore;
 import com.hazelcast.cache.impl.ICacheService;
+import com.hazelcast.cache.impl.PreJoinCacheConfig;
 import com.hazelcast.cache.impl.record.CacheRecord;
 import com.hazelcast.config.CacheConfig;
 import com.hazelcast.internal.nio.IOUtil;
@@ -31,7 +32,6 @@ import com.hazelcast.internal.services.ObjectNamespace;
 import com.hazelcast.spi.impl.operationservice.Operation;
 import com.hazelcast.internal.services.ServiceNamespace;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,8 +41,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static com.hazelcast.config.CacheConfigAccessor.getTenantControl;
-import static com.hazelcast.internal.nio.IOUtil.closeResource;
 import static com.hazelcast.internal.util.MapUtil.createHashMap;
 
 /**
@@ -64,6 +62,7 @@ public class CacheReplicationOperation extends Operation implements IdentifiedDa
     private final List<CacheConfig> configs = new ArrayList<CacheConfig>();
     private final Map<String, Map<Data, CacheRecord>> data = new HashMap<String, Map<Data, CacheRecord>>();
     private CacheNearCacheStateHolder nearCacheStateHolder;
+    private boolean classesAlwaysAvailable = true;
 
     public CacheReplicationOperation() {
         nearCacheStateHolder = new CacheNearCacheStateHolder();
@@ -82,17 +81,14 @@ public class CacheReplicationOperation extends Operation implements IdentifiedDa
 
             CacheConfig cacheConfig = recordStore.getConfig();
             if (cacheConfig.getTotalBackupCount() >= replicaIndex) {
-                Closeable tenantContext = getTenantControl(cacheConfig).setTenant(false);
-                try {
-                    storeRecordsToReplicate(recordStore);
-                } finally {
-                    closeResource(tenantContext);
-                }
+                storeRecordsToReplicate(recordStore);
             }
         }
 
         configs.addAll(segment.getCacheConfigs());
         nearCacheStateHolder.prepare(segment, namespaces);
+        classesAlwaysAvailable = segment.getCacheService().getNodeEngine()
+                .getTenantControlFactory().isClassesAlwaysAvailable();
     }
 
     protected void storeRecordsToReplicate(ICacheRecordStore recordStore) {
@@ -112,31 +108,24 @@ public class CacheReplicationOperation extends Operation implements IdentifiedDa
     public void run() throws Exception {
         ICacheService service = getService();
         for (Map.Entry<String, Map<Data, CacheRecord>> entry : data.entrySet()) {
-            // establish thread-local context for this cache's tenant application before possibly creating records
-            // This is so CDI / JPA / EJB methods can be called from other than JavaEE threads
-            Closeable tenantContext = getTenantControl(service.getCacheConfig(entry.getKey())).setTenant(true);
             ICacheRecordStore cache;
-            try {
-                cache = service.getOrCreateRecordStore(entry.getKey(), getPartitionId());
-                cache.reset();
-                Map<Data, CacheRecord> map = entry.getValue();
+            cache = service.getOrCreateRecordStore(entry.getKey(), getPartitionId());
+            cache.reset();
+            Map<Data, CacheRecord> map = entry.getValue();
 
-                Iterator<Map.Entry<Data, CacheRecord>> iterator = map.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    if (cache.evictIfRequired()) {
-                        // No need to continue replicating records anymore.
-                        // We are already over eviction threshold, each put record will cause another eviction.
-                        break;
-                    }
-
-                    Map.Entry<Data, CacheRecord> next = iterator.next();
-                    Data key = next.getKey();
-                    CacheRecord record = next.getValue();
-                    iterator.remove();
-                    cache.putRecord(key, record, false);
+            Iterator<Map.Entry<Data, CacheRecord>> iterator = map.entrySet().iterator();
+            while (iterator.hasNext()) {
+                if (cache.evictIfRequired()) {
+                    // No need to continue replicating records anymore.
+                    // We are already over eviction threshold, each put record will cause another eviction.
+                    break;
                 }
-            } finally {
-                tenantContext.close();
+
+                Map.Entry<Data, CacheRecord> next = iterator.next();
+                Data key = next.getKey();
+                CacheRecord record = next.getValue();
+                iterator.remove();
+                cache.putRecord(key, record, false);
             }
         }
         data.clear();
@@ -157,7 +146,11 @@ public class CacheReplicationOperation extends Operation implements IdentifiedDa
         int confSize = configs.size();
         out.writeInt(confSize);
         for (CacheConfig config : configs) {
-            out.writeObject(config);
+            if (!classesAlwaysAvailable) {
+                out.writeObject(PreJoinCacheConfig.of(config));
+            } else {
+                out.writeObject(config);
+            }
         }
         int count = data.size();
         out.writeInt(count);
@@ -190,7 +183,11 @@ public class CacheReplicationOperation extends Operation implements IdentifiedDa
         int confSize = in.readInt();
         for (int i = 0; i < confSize; i++) {
             final CacheConfig config = in.readObject();
-            configs.add(config);
+            if (!classesAlwaysAvailable) {
+                configs.add(PreJoinCacheConfig.asCacheConfig(config));
+            } else {
+                configs.add(config);
+            }
         }
         int count = in.readInt();
         for (int i = 0; i < count; i++) {

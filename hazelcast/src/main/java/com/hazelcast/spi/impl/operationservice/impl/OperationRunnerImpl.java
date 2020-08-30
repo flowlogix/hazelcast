@@ -191,7 +191,7 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
     }
 
     @Override
-    public void run(Operation op) {
+    public boolean run(Operation op) {
         executedOperationsCounter.inc();
 
         boolean publishCurrentTask = publishCurrentTask();
@@ -204,23 +204,29 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
             checkNodeState(op);
 
             if (timeout(op)) {
-                return;
+                return false;
             }
 
             ensureNoPartitionProblems(op);
 
             ensureNoSplitBrain(op);
 
-            op.beforeRun();
-
-            call(op);
+            if (op.isTenantAvailable()) {
+                op.pushThreadContext();
+                op.beforeRun();
+                call(op);
+            } else {
+                return true;
+            }
         } catch (Throwable e) {
             handleOperationError(op, e);
         } finally {
             if (publishCurrentTask) {
                 currentTask = null;
             }
+            op.popThreadContext();
         }
+        return false;
     }
 
     private void call(Operation op) throws Exception {
@@ -394,7 +400,7 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
     }
 
     @Override
-    public void run(Packet packet) throws Exception {
+    public boolean run(Packet packet) throws Exception {
         boolean publishCurrentTask = publishCurrentTask();
 
         if (publishCurrentTask) {
@@ -403,9 +409,10 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
 
         ServerConnection connection = packet.getConn();
         Address caller = connection.getRemoteAddress();
+        Operation op = null;
         try {
             Object object = nodeEngine.toObject(packet);
-            Operation op = (Operation) object;
+            op = (Operation) object;
             op.setNodeEngine(nodeEngine);
             setCallerAddress(op, caller);
             setConnection(op, connection);
@@ -413,13 +420,13 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
             setOperationResponseHandler(op);
 
             if (!ensureValidMember(op)) {
-                return;
+                return false;
             }
 
             if (publishCurrentTask) {
                 currentTask = null;
             }
-            run(op);
+            return run(op);
         } catch (Throwable throwable) {
             // If exception happens we need to extract the callId from the bytes directly!
             long callId = extractOperationCallId(packet);
@@ -428,6 +435,9 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
             logOperationDeserializationException(throwable, callId);
             throw ExceptionUtil.rethrow(throwable);
         } finally {
+            if (op != null) {
+                op.clearThreadContext();
+            }
             if (publishCurrentTask) {
                 currentTask = null;
             }

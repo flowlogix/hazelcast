@@ -132,20 +132,33 @@ public abstract class OperationThread extends HazelcastManagedThread implements 
 
     private void process(Object task) {
         try {
+            SwCounter counter;
+            // process() will return it's appropriate counter to be incremented
+            // if process() returns null instead, which means that task's tenant
+            // is not available, the task will be put in the back of the queue
+            // this, however, conflates the meaning of SwCounter return value
+            // design choice needed to be made, otherwise there would be a lot of
+            // code duplication. Wishing Java had tuples (although they bring their own problems)
             if (task.getClass() == Packet.class) {
-                process((Packet) task);
+                counter = process((Packet) task);
             } else if (task instanceof Operation) {
-                process((Operation) task);
+                counter = process((Operation) task);
             } else if (task instanceof PartitionSpecificRunnable) {
-                process((PartitionSpecificRunnable) task);
+                counter = process((PartitionSpecificRunnable) task);
             } else if (task instanceof Runnable) {
-                process((Runnable) task);
+                counter = process((Runnable) task);
             } else if (task instanceof TaskBatch) {
-                process((TaskBatch) task);
+                counter = process((TaskBatch) task);
             } else {
                 throw new IllegalStateException("Unhandled task:" + task);
             }
-            completedTotalCount.inc();
+            if (counter != null) {
+                counter.inc();
+                completedTotalCount.inc();
+            } else {
+                // retry later if not ready
+                queue.add(task, false);
+            }
         } catch (Throwable t) {
             errorCount.inc();
             inspectOutOfMemoryError(t);
@@ -155,47 +168,55 @@ public abstract class OperationThread extends HazelcastManagedThread implements 
         }
     }
 
-    private void process(Operation operation) {
+    private SwCounter process(Operation operation) {
         currentRunner = operationRunner(operation.getPartitionId());
-        currentRunner.run(operation);
-        completedOperationCount.inc();
+        try {
+            return currentRunner.run(operation) ? null : completedOperationCount;
+        } finally {
+            operation.clearThreadContext();
+        }
     }
 
-    private void process(Packet packet) throws Exception {
+    private SwCounter process(Packet packet) throws Exception {
         currentRunner = operationRunner(packet.getPartitionId());
-        currentRunner.run(packet);
-        completedPacketCount.inc();
+        return currentRunner.run(packet) ? null : completedPacketCount;
     }
 
-    private void process(PartitionSpecificRunnable runnable) {
+    private SwCounter process(PartitionSpecificRunnable runnable) {
         currentRunner = operationRunner(runnable.getPartitionId());
         currentRunner.run(runnable);
-        completedPartitionSpecificRunnableCount.inc();
+        return completedPartitionSpecificRunnableCount;
     }
 
-    private void process(Runnable runnable) {
+    private SwCounter process(Runnable runnable) {
         runnable.run();
-        completedRunnableCount.inc();
+        return completedRunnableCount;
     }
 
-    private void process(TaskBatch batch) {
+    private SwCounter process(TaskBatch batch) {
         Object task = batch.next();
         if (task == null) {
-            completedOperationBatchCount.inc();
-            return;
+            return completedOperationBatchCount;
         }
 
+        SwCounter counter = null;
         try {
             if (task instanceof Operation) {
-                process((Operation) task);
+                counter = process((Operation) task);
             } else if (task instanceof Runnable) {
-                process((Runnable) task);
+                counter = process((Runnable) task);
             } else {
                 throw new IllegalStateException("Unhandled task: " + task + " from " + batch.taskFactory());
+            }
+            if (counter == null) {
+                queue.add(task, false);
+            } else {
+                counter.inc();
             }
         } finally {
             queue.add(batch, false);
         }
+        return null;
     }
 
     @Override
