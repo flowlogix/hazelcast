@@ -105,6 +105,7 @@ public class ClusterJoinManager {
     private final long waitMillisBeforeJoin;
     private final long staleJoinPreventionDuration;
     private final AtomicBoolean migrationDelayActive = new AtomicBoolean();
+    private final boolean useDynamicPublicAddress;
 
     private volatile boolean joinInProgress;
     private volatile boolean mastershipClaimInProgress;
@@ -124,6 +125,8 @@ public class ClusterJoinManager {
         maxWaitMillisBeforeJoin = node.getProperties().getMillis(ClusterProperty.MAX_WAIT_SECONDS_BEFORE_JOIN);
         waitMillisBeforeJoin = node.getProperties().getMillis(ClusterProperty.WAIT_SECONDS_BEFORE_JOIN);
         staleJoinPreventionDuration = TimeUnit.SECONDS.toMillis(STALE_JOIN_PREVENTION_DURATION_SECONDS);
+        useDynamicPublicAddress = Boolean.valueOf((String) node.getConfig().getNetworkConfig()
+                .getMemberAddressProviderConfig().getProperties().get("DynamicConfig"));
     }
 
     boolean isJoinInProgress() {
