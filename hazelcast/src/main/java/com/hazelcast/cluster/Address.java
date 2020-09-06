@@ -37,15 +37,30 @@ import java.util.Objects;
  * Represents an address of a member in the cluster.
  */
 public final class Address implements IdentifiedDataSerializable {
-    public static class Context {
-        public Context(Address thisAddress, Connection connection) {
-            Objects.requireNonNull(thisAddress);
-            this.thisAddress = thisAddress;
+    public static class Context implements AutoCloseable {
+        private final Address address;
+        private final Connection connection;
+        private final Context context;
+
+        Context(Address address, Connection connection) {
+            this.address = address;
             this.connection = connection;
+            this.context = currentContext.get();
         }
 
-        public final Address thisAddress;
-        public final Connection connection;
+        @Override
+        public void close() {
+            if (context != null) {
+                currentContext.set(context);
+            } else {
+                currentContext.remove();
+            }
+        }
+    }
+
+    interface AutoCloseable extends java.lang.AutoCloseable {
+        @Override
+        public void close();
     }
 
     private static final byte IPV4 = 4;
@@ -153,50 +168,45 @@ public final class Address implements IdentifiedDataSerializable {
         return ClusterDataSerializerHook.ADDRESS;
     }
 
-    public static void setContext(Context context) {
-        if (currentContext.get() != null) {
-            throw new IllegalStateException("Already have context");
-        }
+    public static Context setContext(Address address, ServerConnection connection) {
+        Objects.requireNonNull(address);
+        Context context = new Context(address, connection);
         currentContext.set(context);
+        return context;
     }
 
-    public static void overrideAddress(Address address) {
+    public static Context overrideConnection(ServerConnection connection) {
+        Objects.requireNonNull(connection);
         Context context = currentContext.get();
-        if (context != null) {
-            currentContext.set(new Context(address, context.connection));
-        } else {
-            currentContext.set(new Context(address, null));
+        if (context == null) {
+            throw new IllegalStateException("No context to override");
         }
+        Context newContext = new Context(context.address, connection);
+        currentContext.set(newContext);
+        return newContext;
     }
 
-    public static void overrideConnection(ServerConnection connection) {
+    static Context getCurrentContext() {
+        return currentContext.get();
+    }
+
+    String transformHost() {
         Context context = currentContext.get();
-        if (context != null) {
-            currentContext.set(new Context(context.thisAddress, connection));
-        }
-    }
-
-    public static void removeContext() {
-        if (currentContext.get() == null) {
-            throw new IllegalStateException("No context to remove");
-        }
-        currentContext.remove();
-    }
-
-    private String transformHost() {
-        Context context = currentContext.get();
-        if (context != null && context.thisAddress.equals(this)) {
+        if (context != null && context.connection != null
+                && (context.address.equals(this))) {
             String dynamicHost = context.connection.getInetAddress().getHostAddress();
             if (!host.equals(dynamicHost)) {
                 try {
                     System.out.format("***** Rewriting %s -> %s -.-. Sending %s -> %s\n",
                             new Address(host, port), new Address(dynamicHost, port),
-                            context.thisAddress, context.connection.getRemoteAddress());
+                            context.address, context.connection.getRemoteAddress());
                 } catch (UnknownHostException ex) {
                     throw new RuntimeException(ex);
                 }
             }
             return dynamicHost;
+        } else if (context != null && context.connection == null) {
+            throw new IllegalStateException("rewrite and connection is null");
         } else {
             return host;
         }
@@ -206,7 +216,11 @@ public final class Address implements IdentifiedDataSerializable {
     public void writeData(ObjectDataOutput out) throws IOException {
         out.writeInt(port);
         out.write(type);
-        out.writeUTF(transformHost());
+        String txHost = transformHost();
+        out.writeUTF(txHost);
+        if ("127.0.0.1".equals(txHost)) {
+            System.out.println("*!*!*!*!*!*!*!*localhost leak!!!!");
+        }
     }
 
     @Override
