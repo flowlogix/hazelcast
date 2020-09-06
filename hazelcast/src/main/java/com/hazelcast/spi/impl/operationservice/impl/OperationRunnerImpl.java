@@ -441,7 +441,7 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
         ServerConnection connection = packet.getConn();
         Address caller = connection.getRemoteAddress();
         Operation op = null;
-        try (Context ctx = Address.setContext(node.getThisAddress(), connection)) {
+        try (Context context = Address.setContext(node.getThisAddress(), connection)) {
             Object object = nodeEngine.toObject(packet);
             op = (Operation) object;
             op.setNodeEngine(nodeEngine);
