@@ -17,6 +17,7 @@
 package com.hazelcast.internal.partition.impl;
 
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
@@ -538,17 +539,22 @@ public class InternalPartitionServiceImpl implements InternalPartitionService,
             logger.fine("Publishing partition state, stamp: " + partitionState.getStamp());
         }
 
-        PartitionStateOperation op = new PartitionStateOperation(partitionState, false);
-        OperationService operationService = nodeEngine.getOperationService();
-        Collection<Member> members = node.clusterService.getMembers();
-        for (Member member : members) {
-            if (!member.localMember()) {
-                try {
-                    operationService.send(op, member.getAddress());
-                } catch (Exception e) {
-                    logger.finest(e);
+        try {
+            Address.setContext(new Context(node.getThisAddress(), null));
+            PartitionStateOperation op = new PartitionStateOperation(partitionState, false);
+            OperationService operationService = nodeEngine.getOperationService();
+            Collection<Member> members = node.clusterService.getMembers();
+            for (Member member : members) {
+                if (!member.localMember()) {
+                    try {
+                        operationService.send(op, member.getAddress());
+                    } catch (Exception e) {
+                        logger.finest(e);
+                    }
                 }
             }
+        } finally {
+            Address.removeContext();
         }
     }
 
@@ -566,8 +572,13 @@ public class InternalPartitionServiceImpl implements InternalPartitionService,
         }
 
         OperationService operationService = nodeEngine.getOperationService();
-        PartitionStateOperation op = new PartitionStateOperation(partitionState, true);
-        operationService.invokeOnTarget(SERVICE_NAME, op, target);
+        try {
+            Address.setContext(new Context(node.getThisAddress(), null));
+            PartitionStateOperation op = new PartitionStateOperation(partitionState, true);
+            operationService.invokeOnTarget(SERVICE_NAME, op, target);
+        } finally {
+            Address.removeContext();
+        }
     }
 
     void checkClusterPartitionRuntimeStates() {

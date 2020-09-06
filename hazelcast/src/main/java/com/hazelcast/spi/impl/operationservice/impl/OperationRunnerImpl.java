@@ -501,7 +501,8 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
     private boolean ensureValidMember(Operation op) {
         if (node.clusterService.getMember(op.getCallerAddress()) != null
                 || isJoinOperation(op)
-                || isWanReplicationOperation(op)) {
+                || isWanReplicationOperation(op)
+                || node.clusterService.getMember(op.getCallerUuid()) != null) {
             return true;
         }
 

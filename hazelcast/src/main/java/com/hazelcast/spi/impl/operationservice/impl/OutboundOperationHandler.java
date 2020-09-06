@@ -49,12 +49,15 @@ public class OutboundOperationHandler {
         }
 
         int streamId = op.getPartitionId();
+        ServerConnection connection = node.getServer().getConnectionManager(MEMBER).get(target, streamId);
+        Address.overrideConnection(connection);
         return node.getServer()
                 .getConnectionManager(MEMBER)
                 .transmit(toPacket(op), target, streamId);
     }
 
     public boolean send(Operation op, ServerConnection connection) {
+        Address.overrideConnection(connection);
         Packet packet = toPacket(op);
         return connection.write(packet);
     }

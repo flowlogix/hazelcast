@@ -18,6 +18,7 @@ package com.hazelcast.internal.cluster.impl;
 
 import com.hazelcast.auditlog.AuditlogTypeIds;
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.impl.MemberImpl;
@@ -158,7 +159,12 @@ public class ClusterJoinManager {
         // if the join request from current master, do not send a master answer,
         // because master can somehow dropped its connection and wants to join back
         if (!clusterService.isMaster() && !isRequestFromCurrentMaster) {
-            sendMasterAnswer(target);
+            try {
+                Address.setContext(new Context(clusterService.getThisAddress(), connection));
+                sendMasterAnswer(target);
+            } finally {
+                Address.removeContext();
+            }
             return;
         }
 
@@ -246,6 +252,7 @@ public class ClusterJoinManager {
     private void executeJoinRequest(JoinRequest joinRequest, ServerConnection connection) {
         clusterServiceLock.lock();
         try {
+            Address.setContext(new Context(clusterService.getThisAddress(), connection));
             if (checkJoinRequest(joinRequest, connection)) {
                 return;
             }
@@ -260,6 +267,7 @@ public class ClusterJoinManager {
 
             startJoin(joinRequest.toMemberInfo());
         } finally {
+            Address.removeContext();
             clusterServiceLock.unlock();
         }
     }
@@ -545,7 +553,12 @@ public class ClusterJoinManager {
 
         if (clusterService.isJoined()) {
             if (!checkIfJoinRequestFromAnExistingMember(joinMessage, connection)) {
-                sendMasterAnswer(joinMessage.getAddress());
+                try {
+                    Address.setContext(new Context(clusterService.getMasterAddress(), connection));
+                    sendMasterAnswer(joinMessage.getAddress());
+                } finally {
+                    Address.removeContext();
+                }
             }
         } else {
             if (logger.isFineEnabled()) {
@@ -582,6 +595,7 @@ public class ClusterJoinManager {
         }
 
         MasterResponseOp op = new MasterResponseOp(masterAddress);
+        System.out.format("Sending MasterResponse %s - %s -> %s\n", masterAddress, node.getThisAddress(), target);
         nodeEngine.getOperationService().send(op, target);
     }
 
@@ -696,6 +710,8 @@ public class ClusterJoinManager {
                     if (member.localMember() || memberInfo.getAddress().equals(member.getAddress())) {
                         continue;
                     }
+
+                    System.out.format("Sending MembersJoinOp %s - %s -> %s\n", newMembersView, node.getThisAddress(), member.getAddress());
                     Operation op = new MembersUpdateOp(member.getUuid(), newMembersView, time, partitionRuntimeState, true);
                     op.setCallerUuid(thisUuid);
                     invokeClusterOp(op, member.getAddress());

@@ -17,6 +17,8 @@
 package com.hazelcast.cluster;
 
 import com.hazelcast.internal.cluster.impl.ClusterDataSerializerHook;
+import com.hazelcast.internal.nio.Connection;
+import com.hazelcast.internal.server.ServerConnection;
 import com.hazelcast.internal.util.AddressUtil;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -29,14 +31,27 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import static com.hazelcast.internal.util.Preconditions.checkNotNull;
+import java.util.Objects;
 
 /**
  * Represents an address of a member in the cluster.
  */
 public final class Address implements IdentifiedDataSerializable {
+    public static class Context {
+        public Context(Address thisAddress, Connection connection) {
+            Objects.requireNonNull(thisAddress);
+            this.thisAddress = thisAddress;
+            this.connection = connection;
+        }
+
+        public final Address thisAddress;
+        public final Connection connection;
+    }
 
     private static final byte IPV4 = 4;
     private static final byte IPV6 = 6;
+
+    private static final ThreadLocal<Context> currentContext = new ThreadLocal<>();
 
     private int port = -1;
     private String host;
@@ -138,11 +153,60 @@ public final class Address implements IdentifiedDataSerializable {
         return ClusterDataSerializerHook.ADDRESS;
     }
 
+    public static void setContext(Context context) {
+        if (currentContext.get() != null) {
+            throw new IllegalStateException("Already have context");
+        }
+        currentContext.set(context);
+    }
+
+    public static void overrideAddress(Address address) {
+        Context context = currentContext.get();
+        if (context != null) {
+            currentContext.set(new Context(address, context.connection));
+        } else {
+            currentContext.set(new Context(address, null));
+        }
+    }
+
+    public static void overrideConnection(ServerConnection connection) {
+        Context context = currentContext.get();
+        if (context != null) {
+            currentContext.set(new Context(context.thisAddress, connection));
+        }
+    }
+
+    public static void removeContext() {
+        if (currentContext.get() == null) {
+            throw new IllegalStateException("No context to remove");
+        }
+        currentContext.remove();
+    }
+
+    private String transformHost() {
+        Context context = currentContext.get();
+        if (context != null && context.thisAddress.equals(this)) {
+            String dynamicHost = context.connection.getInetAddress().getHostAddress();
+            if (!host.equals(dynamicHost)) {
+                try {
+                    System.out.format("***** Rewriting %s -> %s -.-. Sending %s -> %s\n",
+                            new Address(host, port), new Address(dynamicHost, port),
+                            context.thisAddress, context.connection.getRemoteAddress());
+                } catch (UnknownHostException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            return dynamicHost;
+        } else {
+            return host;
+        }
+    }
+
     @Override
     public void writeData(ObjectDataOutput out) throws IOException {
         out.writeInt(port);
         out.write(type);
-        out.writeUTF(host);
+        out.writeUTF(transformHost());
     }
 
     @Override
