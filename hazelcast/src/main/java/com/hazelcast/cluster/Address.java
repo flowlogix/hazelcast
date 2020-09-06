@@ -226,10 +226,10 @@ public final class Address implements IdentifiedDataSerializable {
         String txHost = transformHost();
         out.writeUTF(txHost);
         if (currentContext.get() == null) {
-            System.out.println("***** No Rewrite Context");
+            System.out.println("***** No Rewrite Context: " + txHost);
             Thread.dumpStack();
         } else if (getCurrentContext().address.equals(new Address(txHost, port))) {
-            System.out.println("*!*!*!*!*!*!*!*localhost leak!!!!");
+            System.out.println("*!*!*!*!*!*!*!*localhost leak!!!! - " + new Address(txHost, port));
             Thread.dumpStack();
         }
     }
