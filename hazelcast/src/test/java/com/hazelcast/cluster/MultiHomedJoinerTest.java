@@ -68,8 +68,8 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
         NetworkConfig networkConfig = config.getNetworkConfig();
         networkConfig.setMemberAddressProviderConfig(new MemberAddressProviderConfig().setEnabled(true)
                 .setImplementation(new MemberAddressProviderImpl(hostname)));
-        config.setProperty(ClusterProperty.WAIT_SECONDS_BEFORE_JOIN.getName(), "5");
-        config.setProperty(ClusterProperty.MAX_WAIT_SECONDS_BEFORE_JOIN.getName(), "20");
+        config.setProperty(ClusterProperty.WAIT_SECONDS_BEFORE_JOIN.getName(), "0");
+        config.setProperty(ClusterProperty.MAX_WAIT_SECONDS_BEFORE_JOIN.getName(), "0");
         networkConfig.getMemberAddressProviderConfig().getProperties().setProperty("DynamicConfig", Boolean.TRUE.toString());
         config.getNetworkConfig().getJoin().setMulticastConfig(new MulticastConfig().setEnabled(false));
 
@@ -92,7 +92,9 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
         waitUntilClusterState(hz3, ClusterState.ACTIVE, 1);
         assertEquals("cluster not correct size", 3, hz1.getCluster().getMembers().size());
         hz1.getMap("map").put("hello", "world");
+        hz2.getMap("map2").put("hello2", "world2");
         assertEquals("world", hz3.getMap("map").get("hello"));
+        assertEquals("world2", hz1.getMap("map2").get("hello2"));
     }
 
     private static class MemberAddressProviderImpl implements MemberAddressProvider {
@@ -121,5 +123,13 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
         public InetSocketAddress getPublicAddress(EndpointQualifier qualifier) {
             return getPublicAddress();
         }
+    }
+
+    public static void main(String[] args) {
+        MultiHomedJoinerTest.init();
+        MultiHomedJoinerTest test = new MultiHomedJoinerTest();
+        test.beforeRun();
+        test.wildcardAddressTest();
+        test.afterRun();
     }
 }
