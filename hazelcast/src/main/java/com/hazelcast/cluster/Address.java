@@ -176,7 +176,6 @@ public final class Address implements IdentifiedDataSerializable {
     }
 
     public static Context overrideConnection(ServerConnection connection) {
-        Objects.requireNonNull(connection);
         Context context = currentContext.get();
         if (context == null) {
             throw new IllegalStateException("No context to override");
@@ -218,7 +217,9 @@ public final class Address implements IdentifiedDataSerializable {
         out.write(type);
         String txHost = transformHost();
         out.writeUTF(txHost);
-        if ("127.0.0.1".equals(txHost)) {
+        if (currentContext.get() == null) {
+            System.out.println("***** No Rewrite Context");
+        } else if (getCurrentContext().address.equals(new Address(txHost, port))) {
             System.out.println("*!*!*!*!*!*!*!*localhost leak!!!!");
         }
     }
