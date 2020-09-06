@@ -15,6 +15,7 @@
  */
 package com.hazelcast.cluster;
 
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MemberAddressProviderConfig;
 import com.hazelcast.config.MulticastConfig;
@@ -22,6 +23,7 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.EndpointQualifier;
+import com.hazelcast.internal.server.ServerConnection;
 import com.hazelcast.spi.MemberAddressProvider;
 import com.hazelcast.spi.properties.ClusterProperty;
 import com.hazelcast.test.HazelcastSerialClassRunner;
@@ -29,14 +31,23 @@ import com.hazelcast.test.HazelcastTestSupport;
 import static com.hazelcast.test.TestEnvironment.HAZELCAST_TEST_USE_NETWORK;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import com.hazelcast.test.annotation.QuickTest;
+import java.net.Inet4Address;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * tests multi-homed systems with wildcard addressing
@@ -83,6 +94,7 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
     }
 
     @Test(timeout = 10 * 1000)
+    @Ignore
     public void wildcardAddressTest() {
         HazelcastInstance hz1 = fact.newHazelcastInstance(getConfig(null));
 //        HazelcastInstance hz2 = fact.newHazelcastInstance(getConfig("127.0.0.1"));
@@ -122,6 +134,72 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
         @Override
         public InetSocketAddress getPublicAddress(EndpointQualifier qualifier) {
             return getPublicAddress();
+        }
+    }
+
+    @Test
+    public void testOverrideAddress() throws UnknownHostException {
+        Address address = new Address("1.1.1.1", 1);
+
+        ServerConnection conn1 = mock(ServerConnection.class);
+        when(conn1.getRemoteAddress()).thenReturn(new Address("2.2.2.2", 1));
+        when(conn1.getInetAddress()).thenReturn(Inet4Address.getByName("2.2.2.2"));
+
+        try (Context outer = Address.setContext(new Address("1.1.1.1", 1), conn1)) {
+            assertEquals("2.2.2.2", address.transformHost());
+            try (Context inner = Address.setContext(new Address("3.3.3.3", 1), conn1)) {
+                assertEquals("1.1.1.1", address.transformHost());
+            }
+            assertNotNull(Address.getCurrentContext());
+            assertEquals("2.2.2.2", address.transformHost());
+        }
+        assertEquals("1.1.1.1", address.transformHost());
+        assertNull(Address.getCurrentContext());
+    }
+
+    @Test
+    public void testOverrideConnection() throws UnknownHostException {
+        assertNull(Address.getCurrentContext());
+        ServerConnection conn1 = mock(ServerConnection.class);
+        ServerConnection conn2 = mock(ServerConnection.class);
+        when(conn1.getRemoteAddress()).thenReturn(new Address("2.2.2.2", 1));
+        when(conn1.getInetAddress()).thenReturn(Inet4Address.getByName("2.2.2.2"));
+
+        when(conn2.getRemoteAddress()).thenReturn(new Address("3.3.3.3", 1));
+        when(conn2.getInetAddress()).thenReturn(Inet4Address.getByName("3.3.3.3"));
+
+        assertNotEquals(conn1, conn2);
+        assertNotSame(conn1, conn2);
+        Address address = new Address("1.1.1.1", 1);
+        try (Context outer = Address.setContext(new Address("1.1.1.1", 1), conn1)) {
+            assertEquals("2.2.2.2", address.transformHost());
+            try (Context inner = Address.overrideConnection(conn2)) {
+                assertEquals("3.3.3.3", address.transformHost());
+            }
+            assertEquals("2.2.2.2", address.transformHost());
+        }
+        assertEquals("1.1.1.1", address.transformHost());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testOverrideConnection_whenNoContext() throws UnknownHostException
+    {
+        ServerConnection conn1 = mock(ServerConnection.class);
+        Address.overrideConnection(conn1);
+    }
+
+    @Test
+    public void testNullConnection() throws UnknownHostException {
+        try (Context outer = Address.setContext(new Address("1.1.1.1", 1), null)) {
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testOverrideConnection_whenNoConnection() throws UnknownHostException
+    {
+        Address address = new Address("1.1.1.1", 1);
+        try (Context outer = Address.setContext(new Address("1.1.1.1", 1), null)) {
+            address.transformHost();
         }
     }
 
