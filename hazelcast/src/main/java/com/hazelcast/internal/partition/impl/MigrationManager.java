@@ -17,7 +17,6 @@
 package com.hazelcast.internal.partition.impl;
 
 import com.hazelcast.cluster.Address;
-import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
@@ -1358,7 +1357,6 @@ public class MigrationManager {
 
                 List<MigrationInfo> completedMigrations = getCompletedMigrations(migration.getPartitionId());
                 Operation op = new MigrationRequestOperation(migration, completedMigrations, 0, fragmentedMigrationEnabled);
-                Address.setContext(new Context(node.getThisAddress(), null));
                 System.out.println("Migration Start: " + op);
                 future = nodeEngine.getOperationService()
                         .createInvocationBuilder(SERVICE_NAME, op, fromMember.getAddress())
@@ -1368,8 +1366,6 @@ public class MigrationManager {
                 Level level = migration.isValid() ? Level.WARNING : Level.FINE;
                 logger.log(level, "Error during " + migration, t);
                 future = InternalCompletableFuture.completedExceptionally(t);
-            } finally {
-                Address.removeContext();
             }
 
             return future.handle((done, t) -> {

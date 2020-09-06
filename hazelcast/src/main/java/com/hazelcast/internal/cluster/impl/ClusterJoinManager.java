@@ -18,7 +18,6 @@ package com.hazelcast.internal.cluster.impl;
 
 import com.hazelcast.auditlog.AuditlogTypeIds;
 import com.hazelcast.cluster.Address;
-import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.impl.MemberImpl;
@@ -159,12 +158,7 @@ public class ClusterJoinManager {
         // if the join request from current master, do not send a master answer,
         // because master can somehow dropped its connection and wants to join back
         if (!clusterService.isMaster() && !isRequestFromCurrentMaster) {
-            try {
-                Address.setContext(new Context(clusterService.getThisAddress(), connection));
-                sendMasterAnswer(target);
-            } finally {
-                Address.removeContext();
-            }
+            sendMasterAnswer(target);
             return;
         }
 
@@ -252,7 +246,6 @@ public class ClusterJoinManager {
     private void executeJoinRequest(JoinRequest joinRequest, ServerConnection connection) {
         clusterServiceLock.lock();
         try {
-            Address.setContext(new Context(clusterService.getThisAddress(), connection));
             if (checkJoinRequest(joinRequest, connection)) {
                 return;
             }
@@ -267,7 +260,6 @@ public class ClusterJoinManager {
 
             startJoin(joinRequest.toMemberInfo());
         } finally {
-            Address.removeContext();
             clusterServiceLock.unlock();
         }
     }
@@ -553,12 +545,7 @@ public class ClusterJoinManager {
 
         if (clusterService.isJoined()) {
             if (!checkIfJoinRequestFromAnExistingMember(joinMessage, connection)) {
-                try {
-                    Address.setContext(new Context(clusterService.getMasterAddress(), connection));
-                    sendMasterAnswer(joinMessage.getAddress());
-                } finally {
-                    Address.removeContext();
-                }
+                sendMasterAnswer(joinMessage.getAddress());
             }
         } else {
             if (logger.isFineEnabled()) {

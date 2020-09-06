@@ -17,6 +17,7 @@
 package com.hazelcast.spi.impl.operationservice.impl;
 
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Packet;
 import com.hazelcast.internal.serialization.InternalSerializationService;
@@ -50,16 +51,18 @@ public class OutboundOperationHandler {
 
         int streamId = op.getPartitionId();
         ServerConnection connection = node.getServer().getConnectionManager(MEMBER).get(target, streamId);
-        Address.overrideConnection(connection);
-        return node.getServer()
-                .getConnectionManager(MEMBER)
-                .transmit(toPacket(op), target, streamId);
+        try (Context context = Address.overrideConnection(connection)) {
+            return node.getServer()
+                    .getConnectionManager(MEMBER)
+                    .transmit(toPacket(op), target, streamId);
+        }
     }
 
     public boolean send(Operation op, ServerConnection connection) {
-        Address.overrideConnection(connection);
-        Packet packet = toPacket(op);
-        return connection.write(packet);
+        try (Context context = Address.overrideConnection(connection)) {
+            Packet packet = toPacket(op);
+            return connection.write(packet);
+        }
     }
 
     private Packet toPacket(Operation op) {

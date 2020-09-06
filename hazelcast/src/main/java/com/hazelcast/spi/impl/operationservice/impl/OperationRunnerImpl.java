@@ -18,6 +18,7 @@ package com.hazelcast.spi.impl.operationservice.impl;
 
 import com.hazelcast.client.impl.protocol.task.MessageTask;
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.impl.MemberImpl;
@@ -440,7 +441,7 @@ class OperationRunnerImpl extends OperationRunner implements StaticMetricsProvid
         ServerConnection connection = packet.getConn();
         Address caller = connection.getRemoteAddress();
         Operation op = null;
-        try {
+        try (Context ctx = Address.setContext(node.getThisAddress(), connection)) {
             Object object = nodeEngine.toObject(packet);
             op = (Operation) object;
             op.setNodeEngine(nodeEngine);

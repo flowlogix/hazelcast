@@ -632,7 +632,6 @@ public class ClusterHeartbeatManager {
             long clusterTime = clusterClock.getClusterTime();
             Operation op = new HeartbeatOp(membersViewMetadata, target.getUuid(), clusterTime, suspectedMembers);
             op.setCallerUuid(clusterService.getThisUuid());
-            Address.overrideAddress(clusterService.getMasterAddress());
             System.out.format("Heartbeat: %s -> %s - Op: %s, suspects %s\n", clusterService.getThisAddress(), target.getAddress(), membersViewMetadata, suspectedMembers);
             node.nodeEngine.getOperationService().send(op, target.getAddress());
         } catch (Exception e) {
