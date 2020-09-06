@@ -191,9 +191,14 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
     @Test
     public void testNullConnection() throws UnknownHostException {
         try (Context outer = Address.setContext(new Address("1.1.1.1", 1), null)) {
+            assertNotNull(Address.getCurrentContext());
             try (Context inner = Address.overrideConnection(null)) {
+                assertNotNull(Address.getCurrentContext());
             }
+            assertNotNull(Address.getCurrentContext());
         }
+        Address.overrideConnection(null);
+        assertNull(Address.getCurrentContext());
     }
 
     @Test(expected = IllegalStateException.class)
