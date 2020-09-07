@@ -17,6 +17,7 @@
 package com.hazelcast.internal.cluster.impl;
 
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.impl.MemberImpl;
 import com.hazelcast.config.IcmpFailureDetectorConfig;
@@ -630,10 +631,12 @@ public class ClusterHeartbeatManager {
             }
 
             long clusterTime = clusterClock.getClusterTime();
-            Operation op = new HeartbeatOp(membersViewMetadata, target.getUuid(), clusterTime, suspectedMembers);
-            op.setCallerUuid(clusterService.getThisUuid());
-            System.out.format("Heartbeat: %s -> %s - Op: %s, suspects %s\n", clusterService.getThisAddress(), target.getAddress(), membersViewMetadata, suspectedMembers);
-            node.nodeEngine.getOperationService().send(op, target.getAddress());
+            try (Context context = Address.setContext(clusterService.getMasterAddress(), null)) {
+                Operation op = new HeartbeatOp(membersViewMetadata, target.getUuid(), clusterTime, suspectedMembers);
+                op.setCallerUuid(clusterService.getThisUuid());
+                System.out.format("Heartbeat: %s -> %s - Op: %s, suspects %s\n", clusterService.getThisAddress(), target.getAddress(), membersViewMetadata, suspectedMembers);
+                node.nodeEngine.getOperationService().send(op, target.getAddress());
+            }
         } catch (Exception e) {
             if (logger.isFineEnabled()) {
                 logger.fine(format("Error while sending heartbeat -> %s[%s]", e.getClass().getName(), e.getMessage()));

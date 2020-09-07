@@ -32,17 +32,19 @@ import java.util.UUID;
 import static com.hazelcast.internal.util.MapUtil.createLinkedHashMap;
 import static java.util.Collections.singletonMap;
 import static java.util.Collections.unmodifiableCollection;
+import java.util.stream.Collectors;
 
 /**
  * A special, immutable {@link MemberImpl} map type,
  * that allows querying members using address or UUID.
  */
-final class MemberMap {
+public final class MemberMap {
 
     static final int SINGLETON_MEMBER_LIST_VERSION = 1;
 
     private final int version;
     private final Map<Address, MemberImpl> addressToMemberMap;
+    private final Map<Address, MemberImpl> dynamicAddressToMemberMap;
     private final Map<UUID, MemberImpl> uuidToMemberMap;
     private final Set<MemberImpl> members;
 
@@ -54,6 +56,8 @@ final class MemberMap {
         this.addressToMemberMap = addressMap;
         this.uuidToMemberMap = uuidMap;
         this.members = Collections.unmodifiableSet(new LinkedHashSet<>(addressToMemberMap.values()));
+        this.dynamicAddressToMemberMap = addressToMemberMap.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().toDynamic(), Map.Entry::getValue));
     }
 
     /**
@@ -93,7 +97,7 @@ final class MemberMap {
      * @param members members
      * @return a new {@code MemberMap}
      */
-    static MemberMap createNew(int version, MemberImpl... members) {
+    public static MemberMap createNew(int version, MemberImpl... members) {
         Map<Address, MemberImpl> addressMap = createLinkedHashMap(members.length);
         Map<UUID, MemberImpl> uuidMap = createLinkedHashMap(members.length);
 
@@ -119,10 +123,14 @@ final class MemberMap {
         }
 
         Map<Address, MemberImpl> addressMap = new LinkedHashMap<>(source.addressToMemberMap);
+        Map<Address, MemberImpl> dynamicAddressMap = new LinkedHashMap<>(source.dynamicAddressToMemberMap);
         Map<UUID, MemberImpl> uuidMap = new LinkedHashMap<>(source.uuidToMemberMap);
 
         for (MemberImpl member : excludeMembers) {
             MemberImpl removed = addressMap.remove(member.getAddress());
+            if (removed == null) {
+                removed = dynamicAddressMap.remove(member.getAddress());
+            }
             if (removed != null) {
                 uuidMap.remove(removed.getUuid());
             }
@@ -168,16 +176,23 @@ final class MemberMap {
         }
     }
 
-    MemberImpl getMember(Address address) {
-        return addressToMemberMap.get(address);
+    public MemberImpl getMember(Address address) {
+        MemberImpl member = addressToMemberMap.get(address);
+        if (member == null) {
+            member = dynamicAddressToMemberMap.get(address);
+        }
+        return member;
     }
 
-    MemberImpl getMember(UUID uuid) {
+    public MemberImpl getMember(UUID uuid) {
         return uuidToMemberMap.get(uuid);
     }
 
     MemberImpl getMember(Address address, UUID uuid) {
         MemberImpl member1 = addressToMemberMap.get(address);
+        if (member1 == null) {
+            member1 = dynamicAddressToMemberMap.get(address);
+        }
         MemberImpl member2 = uuidToMemberMap.get(uuid);
 
         if (member1 != null && member1.equals(member2)) {
@@ -187,7 +202,7 @@ final class MemberMap {
     }
 
     boolean contains(Address address) {
-        return addressToMemberMap.containsKey(address);
+        return addressToMemberMap.containsKey(address) || dynamicAddressToMemberMap.containsKey(address);
     }
 
     boolean contains(UUID uuid) {
@@ -294,5 +309,4 @@ final class MemberMap {
             throw new IllegalArgumentException(member + " not found!");
         }
     }
-
 }

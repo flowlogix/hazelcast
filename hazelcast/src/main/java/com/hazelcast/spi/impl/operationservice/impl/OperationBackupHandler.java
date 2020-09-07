@@ -16,6 +16,8 @@
 
 package com.hazelcast.spi.impl.operationservice.impl;
 
+import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.cluster.impl.ClusterServiceImpl;
 import com.hazelcast.internal.partition.InternalPartition;
@@ -75,7 +77,11 @@ final class OperationBackupHandler {
         int backupAcks = 0;
         BackupAwareOperation backupAwareOp = (BackupAwareOperation) op;
         if (backupAwareOp.shouldBackup()) {
-            backupAcks = sendBackups0(backupAwareOp);
+            try (Context context = Address.setContext(node.getThisAddress(), null)) {
+                System.out.println("Backup Started");
+                backupAcks = sendBackups0(backupAwareOp);
+                System.out.println("Backup Completed");
+            }
         }
         return backupAcks;
     }

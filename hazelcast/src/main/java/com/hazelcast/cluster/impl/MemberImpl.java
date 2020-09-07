@@ -35,7 +35,7 @@ import static com.hazelcast.instance.EndpointQualifier.MEMBER;
 import static com.hazelcast.internal.util.Preconditions.isNotNull;
 import static java.util.Collections.singletonMap;
 
-public final class MemberImpl
+public class MemberImpl
         extends AbstractMember
         implements Member, HazelcastInstanceAware, IdentifiedDataSerializable {
 

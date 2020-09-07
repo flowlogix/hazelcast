@@ -16,6 +16,7 @@
 
 package com.hazelcast.cluster;
 
+import com.hazelcast.internal.cluster.Versions;
 import com.hazelcast.internal.cluster.impl.ClusterDataSerializerHook;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.internal.server.ServerConnection;
@@ -31,12 +32,13 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import static com.hazelcast.internal.util.Preconditions.checkNotNull;
+import com.hazelcast.nio.serialization.impl.Versioned;
 import java.util.Objects;
 
 /**
  * Represents an address of a member in the cluster.
  */
-public final class Address implements IdentifiedDataSerializable {
+public final class Address implements IdentifiedDataSerializable, Versioned {
     public static class Context implements AutoCloseable {
         private final Address address;
         private final Connection connection;
@@ -74,6 +76,8 @@ public final class Address implements IdentifiedDataSerializable {
 
     private String scopeId;
     private boolean hostSet;
+
+    private String dynamicHost;
 
     public Address() {
     }
@@ -117,10 +121,11 @@ public final class Address implements IdentifiedDataSerializable {
         this.type = address.type;
         this.scopeId = address.scopeId;
         this.hostSet = address.hostSet;
+        this.dynamicHost = address.dynamicHost;
     }
 
     public String getHost() {
-        return host;
+        return dynamicHost != null ? dynamicHost : host;
     }
 
     public int getPort() {
@@ -193,29 +198,49 @@ public final class Address implements IdentifiedDataSerializable {
         };
     }
 
+    public Address toDynamic() {
+        Address newAddress = this;
+        if (newAddress.isDynamic()) {
+            newAddress = new Address(this);
+            newAddress.host = this.dynamicHost;
+        }
+        return newAddress;
+    }
+
     static Context getCurrentContext() {
         return currentContext.get();
     }
 
-    String transformHost() {
+    public boolean isDynamic() {
+        return dynamicHost != null;
+    }
+
+    Address withDynamicHost(String dynamicHost) {
+        Address newAddress = new Address(this);
+        newAddress.dynamicHost = dynamicHost;
+        return newAddress;
+    }
+
+    String dynamicHost() {
         Context context = currentContext.get();
         if (context != null && context.connection != null
                 && (context.address.equals(this))) {
-            String dynamicHost = context.connection.getInetAddress().getHostAddress();
-            if (!host.equals(dynamicHost)) {
+            String localConnectionHost = context.connection.getInetAddress().getHostAddress();
+            if (!host.equals(localConnectionHost)) {
                 try {
                     System.out.format("***** Rewriting %s -> %s -.-. Sending %s -> %s\n",
-                            new Address(host, port), new Address(dynamicHost, port),
+                            new Address(host, port), new Address(localConnectionHost, port),
                             context.address, context.connection.getRemoteAddress());
                 } catch (UnknownHostException ex) {
                     throw new RuntimeException(ex);
                 }
+                return localConnectionHost;
             }
-            return dynamicHost;
+            return null;
         } else if (context != null && context.connection == null) {
             throw new IllegalStateException("rewrite and connection is null");
         } else {
-            return host;
+            return null;
         }
     }
 
@@ -223,14 +248,17 @@ public final class Address implements IdentifiedDataSerializable {
     public void writeData(ObjectDataOutput out) throws IOException {
         out.writeInt(port);
         out.write(type);
-        String txHost = transformHost();
-        out.writeUTF(txHost);
+        out.writeUTF(host);
+        if (out.getVersion().isGreaterOrEqual(Versions.V4_1)) {
+            out.writeUTF(dynamicHost());
+        }
+        String dynHost = dynamicHost();
         if (currentContext.get() == null) {
-            System.out.println("***** No Rewrite Context: " + txHost);
-            Thread.dumpStack();
-        } else if (getCurrentContext().address.equals(new Address(txHost, port))) {
-            System.out.println("*!*!*!*!*!*!*!*localhost leak!!!! - " + new Address(txHost, port));
-            Thread.dumpStack();
+            System.out.println("***** No Rewrite Context: " + dynHost);
+//            Thread.dumpStack();
+        } else if (getCurrentContext().address.equals(new Address(dynHost, port))) {
+            System.out.println("*!*!*!*!*!*!*!*localhost leak!!!! - " + new Address(dynHost, port));
+//            Thread.dumpStack();
         }
     }
 
@@ -239,6 +267,9 @@ public final class Address implements IdentifiedDataSerializable {
         port = in.readInt();
         type = in.readByte();
         host = in.readUTF();
+        if (in.getVersion().isGreaterOrEqual(Versions.V4_1)) {
+            dynamicHost = in.readUTF();
+        }
     }
 
     @Override
@@ -262,7 +293,17 @@ public final class Address implements IdentifiedDataSerializable {
 
     @Override
     public String toString() {
-        return '[' + host + "]:" + port;
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        sb.append(host);
+        if (dynamicHost != null) {
+            sb.append(" (dynamic: ");
+            sb.append(dynamicHost);
+            sb.append(")");
+        }
+        sb.append("]:");
+        sb.append(port);
+        return sb.toString();
     }
 
     private static InetAddress resolve(InetSocketAddress inetSocketAddress) {

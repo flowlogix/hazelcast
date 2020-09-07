@@ -473,6 +473,7 @@ public abstract class Operation implements DataSerializable {
                 getLogger().warning("Missing responseHandler for " + toString() + " value[" + value + "]");
             }
         } else {
+            System.out.println("Sending OP response: " + value);
             responseHandler.sendResponse(this, value);
         }
     }

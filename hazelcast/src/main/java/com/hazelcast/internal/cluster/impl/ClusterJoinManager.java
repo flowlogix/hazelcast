@@ -18,6 +18,7 @@ package com.hazelcast.internal.cluster.impl;
 
 import com.hazelcast.auditlog.AuditlogTypeIds;
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.impl.MemberImpl;
@@ -246,7 +247,7 @@ public class ClusterJoinManager {
     private void executeJoinRequest(JoinRequest joinRequest, ServerConnection connection) {
         clusterServiceLock.lock();
         try {
-            if (checkJoinRequest(joinRequest, connection)) {
+           if (checkJoinRequest(joinRequest, connection)) {
                 return;
             }
 
@@ -417,8 +418,10 @@ public class ClusterJoinManager {
         if (toAddress == null) {
             toAddress = clusterService.getMasterAddress();
         }
-        JoinRequestOp joinRequest = new JoinRequestOp(node.createJoinRequest(toAddress));
-        return nodeEngine.getOperationService().send(joinRequest, toAddress);
+        try (Context context = Address.setContext(clusterService.getThisAddress(), null)) {
+            JoinRequestOp joinRequest = new JoinRequestOp(node.createJoinRequest(toAddress));
+            return nodeEngine.getOperationService().send(joinRequest, toAddress);
+        }
     }
 
     public boolean setThisMemberAsMaster() {
@@ -581,9 +584,12 @@ public class ClusterJoinManager {
             return;
         }
 
-        MasterResponseOp op = new MasterResponseOp(masterAddress);
-        System.out.format("Sending MasterResponse %s - %s -> %s\n", masterAddress, node.getThisAddress(), target);
-        nodeEngine.getOperationService().send(op, target);
+        try (Context context = Address.setContext(masterAddress, null)) {
+            MasterResponseOp op = new MasterResponseOp(masterAddress);
+            System.out.format("Sending MasterResponse %s - %s -> %s\n", masterAddress, node.getThisAddress(), target);
+//            Thread.dumpStack();
+            nodeEngine.getOperationService().send(op, target);
+        }
     }
 
     private boolean checkIfJoinRequestFromAnExistingMember(JoinMessage joinMessage, ServerConnection connection) {
@@ -660,7 +666,7 @@ public class ClusterJoinManager {
     private void startJoin(MemberInfo memberInfo) {
         sendMasterAnswer(memberInfo.getAddress());
         scheduleMigrationDelay();
-        logger.fine("Starting join...");
+        logger.info("Starting join...");
         clusterServiceLock.lock();
         try {
             InternalPartitionService partitionService = node.getPartitionService();

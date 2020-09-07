@@ -465,7 +465,7 @@ public class ClusterServiceImpl implements ClusterService, ConnectionListener, M
     }
 
     private boolean checkValidMaster(Address callerAddress) {
-        return (callerAddress != null && callerAddress.equals(getMasterAddress()));
+        return (callerAddress != null && callerAddress.equals(getMasterAddress().toDynamic()));
     }
 
     private boolean shouldProcessMemberUpdate(MembersView membersView) {
@@ -636,12 +636,13 @@ public class ClusterServiceImpl implements ClusterService, ConnectionListener, M
     // should be called under lock
     void setMasterAddress(Address master) {
         if (master != null && this.node.getThisAddress().getHost().equals("10.0.1.2") && !master.getHost().equals("10.0.1.2")) {
-            System.out.println("wrong");
+            System.out.println("**** wrong");
         }
         assert lock.isHeldByCurrentThread() : "Called without holding cluster service lock!";
         if (logger.isFineEnabled()) {
             logger.fine("Setting master address to " + master);
         }
+        System.out.println("Setting master to " + master);
         masterAddress = master;
         LockSupport.unpark(blockedThread);
     }

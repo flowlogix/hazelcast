@@ -189,6 +189,7 @@ abstract class BaseMigrationOperation extends AbstractPartitionOperation
         }
 
         if (!service.isMemberMaster(migrationInfo.getMaster())) {
+            service.isMemberMaster(migrationInfo.getMaster());
             throw new RetryableHazelcastException("Migration initiator is not the master node known by migration system!");
         }
 

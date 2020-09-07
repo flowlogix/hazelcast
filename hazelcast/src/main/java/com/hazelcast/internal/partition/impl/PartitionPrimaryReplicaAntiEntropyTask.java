@@ -16,6 +16,8 @@
 
 package com.hazelcast.internal.partition.impl;
 
+import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.internal.partition.InternalPartition;
 import com.hazelcast.internal.partition.PartitionReplica;
 import com.hazelcast.internal.services.ServiceNamespace;
@@ -43,7 +45,9 @@ final class PartitionPrimaryReplicaAntiEntropyTask extends AbstractPartitionPrim
         for (int index = 1; index < MAX_REPLICA_COUNT; index++) {
             PartitionReplica replica = partition.getReplica(index);
             if (replica != null) {
-                invokePartitionBackupReplicaAntiEntropyOp(index, replica, namespaces, null);
+                try (Context context = Address.setContext(this.nodeEngine.getThisAddress(), null)) {
+                    invokePartitionBackupReplicaAntiEntropyOp(index, replica, namespaces, null);
+                }
             }
         }
     }

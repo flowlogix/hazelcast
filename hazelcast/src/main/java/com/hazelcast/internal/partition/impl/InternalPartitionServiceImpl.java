@@ -17,6 +17,7 @@
 package com.hazelcast.internal.partition.impl;
 
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
@@ -653,6 +654,7 @@ public class InternalPartitionServiceImpl implements InternalPartitionService,
                     logger.severe("Received " + messageType + " from an unknown member!"
                             + " => Sender: " + sender + "! ");
                 } else {
+                    isMemberMaster(sender);
                     logger.warning("Received " + messageType + ", but its sender doesn't seem to be master!"
                             + " => Sender: " + sender + "! (Ignore if master node has changed recently.)");
                 }
@@ -1037,7 +1039,9 @@ public class InternalPartitionServiceImpl implements InternalPartitionService,
                 if (node.getThisAddress().equals(masterAddress)) {
                     onShutdownRequest(node.getLocalMember());
                 } else {
-                    operationService.send(new ShutdownRequestOperation(), masterAddress);
+                    try (Context context = Address.setContext(node.getThisAddress(), null)) {
+                        operationService.send(new ShutdownRequestOperation(), masterAddress);
+                    }
                 }
                 if (latch.await(awaitStep, TimeUnit.MILLISECONDS)) {
                     return true;
@@ -1382,8 +1386,15 @@ public class InternalPartitionServiceImpl implements InternalPartitionService,
             master = clusterService.getMasterAddress();
         }
 
+        if (master != null) {
+            master = master.toDynamic();
+        }
+        Address clusterServiceMaster = clusterService.getMasterAddress();
+        if (clusterServiceMaster != null) {
+            clusterServiceMaster = clusterServiceMaster.toDynamic();
+        }
         // address should be the known master by both PartitionService and ClusterService.
-        return address.equals(master) && address.equals(clusterService.getMasterAddress());
+        return address.toDynamic().equals(master) && address.toDynamic().equals(clusterServiceMaster);
     }
 
     @SuppressWarnings("checkstyle:npathcomplexity")

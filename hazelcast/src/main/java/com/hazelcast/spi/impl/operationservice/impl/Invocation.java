@@ -535,7 +535,7 @@ public abstract class Invocation<T> extends BaseInvocation implements OperationR
                     "Attempt to reuse the same operation in multiple invocations. Operation is " + op);
         }
 
-        try {
+        try (Address.Context addressContext = Address.setContext(context.thisAddress, op.getConnection())) {
             setCallTimeout(op, callTimeoutMillis);
             setCallerAddress(op, context.thisAddress);
             op.setNodeEngine(context.nodeEngine);

@@ -18,6 +18,7 @@ package com.hazelcast.internal.cluster.impl;
 
 import com.hazelcast.auditlog.AuditlogTypeIds;
 import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Address.Context;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MembershipEvent;
@@ -273,10 +274,12 @@ public class MembershipManager {
                 continue;
             }
 
-            MembersUpdateOp op = new MembersUpdateOp(member.getUuid(), membersView,
-                    clusterService.getClusterTime(), null, false);
-            op.setCallerUuid(clusterService.getThisUuid());
-            nodeEngine.getOperationService().send(op, member.getAddress());
+            try (Context context = Address.setContext(clusterService.getThisAddress(), null)) {
+                MembersUpdateOp op = new MembersUpdateOp(member.getUuid(), membersView,
+                        clusterService.getClusterTime(), null, false);
+                op.setCallerUuid(clusterService.getThisUuid());
+                nodeEngine.getOperationService().send(op, member.getAddress());
+            }
         }
     }
 

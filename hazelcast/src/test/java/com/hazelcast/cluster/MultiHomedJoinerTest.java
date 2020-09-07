@@ -16,6 +16,7 @@
 package com.hazelcast.cluster;
 
 import com.hazelcast.cluster.Address.Context;
+import com.hazelcast.cluster.impl.MemberImpl;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MemberAddressProviderConfig;
 import com.hazelcast.config.MulticastConfig;
@@ -23,7 +24,9 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.EndpointQualifier;
+import com.hazelcast.internal.cluster.impl.MemberMap;
 import com.hazelcast.internal.server.ServerConnection;
+import com.hazelcast.internal.util.UuidUtil;
 import com.hazelcast.spi.MemberAddressProvider;
 import com.hazelcast.spi.properties.ClusterProperty;
 import com.hazelcast.test.HazelcastSerialClassRunner;
@@ -34,6 +37,7 @@ import com.hazelcast.test.annotation.QuickTest;
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.UUID;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -103,10 +107,12 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
         HazelcastInstance hz3 = fact.newHazelcastInstance(getConfig("10.0.1.2"));
         waitUntilClusterState(hz3, ClusterState.ACTIVE, 1);
         assertEquals("cluster not correct size", 3, hz1.getCluster().getMembers().size());
+        System.out.println("clusters joined");
         hz1.getMap("map").put("hello", "world");
         hz2.getMap("map2").put("hello2", "world2");
         assertEquals("world", hz3.getMap("map").get("hello"));
         assertEquals("world2", hz1.getMap("map2").get("hello2"));
+        System.out.println("!!!!! all done!");
     }
 
     private static class MemberAddressProviderImpl implements MemberAddressProvider {
@@ -146,14 +152,14 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
         when(conn1.getInetAddress()).thenReturn(Inet4Address.getByName("2.2.2.2"));
 
         try (Context outer = Address.setContext(new Address("1.1.1.1", 1), conn1)) {
-            assertEquals("2.2.2.2", address.transformHost());
+            assertEquals("2.2.2.2", address.dynamicHost());
             try (Context inner = Address.setContext(new Address("3.3.3.3", 1), conn1)) {
-                assertEquals("1.1.1.1", address.transformHost());
+                assertEquals("1.1.1.1", address.getHost());
             }
             assertNotNull(Address.getCurrentContext());
-            assertEquals("2.2.2.2", address.transformHost());
+            assertEquals("2.2.2.2", address.dynamicHost());
         }
-        assertEquals("1.1.1.1", address.transformHost());
+        assertEquals("1.1.1.1", address.getHost());
         assertNull(Address.getCurrentContext());
     }
 
@@ -172,13 +178,13 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
         assertNotSame(conn1, conn2);
         Address address = new Address("1.1.1.1", 1);
         try (Context outer = Address.setContext(new Address("1.1.1.1", 1), conn1)) {
-            assertEquals("2.2.2.2", address.transformHost());
+            assertEquals("2.2.2.2", address.dynamicHost());
             try (Context inner = Address.overrideConnection(conn2)) {
-                assertEquals("3.3.3.3", address.transformHost());
+                assertEquals("3.3.3.3", address.dynamicHost());
             }
-            assertEquals("2.2.2.2", address.transformHost());
+            assertEquals("2.2.2.2", address.dynamicHost());
         }
-        assertEquals("1.1.1.1", address.transformHost());
+        assertEquals("1.1.1.1", address.getHost());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -206,8 +212,22 @@ public class MultiHomedJoinerTest extends HazelcastTestSupport {
     {
         Address address = new Address("1.1.1.1", 1);
         try (Context outer = Address.setContext(new Address("1.1.1.1", 1), null)) {
-            address.transformHost();
+            address.dynamicHost();
         }
+    }
+
+    @Test
+    public void testMemberMapWithDynamic() throws UnknownHostException {
+        Address address = new Address("1.1.1.1", 1).withDynamicHost("2.2.2.2");
+
+        MemberImpl member = mock(MemberImpl.class);
+        UUID uuid = UuidUtil.newUnsecureUUID();
+        when(member.getUuid()).thenReturn(uuid);
+        when(member.getAddress()).thenReturn(new Address(address));
+        MemberMap memberMap = MemberMap.createNew(1, member);
+
+        assertNotNull(memberMap.getMember(address));
+        assertNotNull(memberMap.getMember(address.toDynamic()));
     }
 
     public static void main(String[] args) {
