@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Cancels further execution and scheduling of the task
  */
-@Generated("1efe4d4733e2583bdf3af06872e1b9b3")
+@Generated("1835b6a8bef430d3b5eafe49f6452bab")
 public final class ScheduledExecutorCancelFromMemberCodec {
     //hex: 0x1A0A00
     public static final int REQUEST_MESSAGE_TYPE = 1706496;
@@ -112,8 +112,8 @@ public final class ScheduledExecutorCancelFromMemberCodec {
     }
 
     /**
-    * True if the task was cancelled
-    */
+     * True if the task was cancelled
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

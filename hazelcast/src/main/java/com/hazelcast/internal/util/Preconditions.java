@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -280,7 +280,7 @@ public final class Preconditions {
     public static <E> E checkInstanceOf(Class<E> type, Object object) {
         isNotNull(type, "type");
         if (!type.isInstance(object)) {
-            throw new IllegalArgumentException(object + " should be instanceof " + type.getName());
+            throw new IllegalArgumentException(object + " must be instanceof " + type.getName());
         }
         return (E) object;
     }
@@ -369,4 +369,3 @@ public final class Preconditions {
         }
     }
 }
-

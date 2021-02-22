@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Checks whether a task as identified from the given handler is already cancelled.
  */
-@Generated("2b7a3fb8e2b05880285b02d2715141e8")
+@Generated("0566b6677ec4c3114230a2a87729310a")
 public final class ScheduledExecutorIsCancelledFromPartitionCodec {
     //hex: 0x1A0B00
     public static final int REQUEST_MESSAGE_TYPE = 1706752;
@@ -97,8 +97,8 @@ public final class ScheduledExecutorIsCancelledFromPartitionCodec {
     }
 
     /**
-    * True if the task is cancelled
-    */
+     * True if the task is cancelled
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

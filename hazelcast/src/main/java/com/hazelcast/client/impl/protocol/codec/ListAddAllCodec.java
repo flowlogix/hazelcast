@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * The behavior of this operation is undefined if the specified collection is modified while the operation is in progress.
  * (Note that this will occur if the specified collection is this list, and it's nonempty.)
  */
-@Generated("37486e118c9394f0d545e03cef3cb323")
+@Generated("56af2d9f9fc3ee924238fa25fe64f528")
 public final class ListAddAllCodec {
     //hex: 0x050600
     public static final int REQUEST_MESSAGE_TYPE = 329216;
@@ -100,8 +100,8 @@ public final class ListAddAllCodec {
     }
 
     /**
-    * True if this list changed as a result of the call, false otherwise
-    */
+     * True if this list changed as a result of the call, false otherwise
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

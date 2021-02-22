@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns true if this set contains no elements.
  */
-@Generated("6434f75fe7345cc2abb27ffc8ae86f31")
+@Generated("93816623d4a50776452dc0448067193a")
 public final class SetIsEmptyCodec {
     //hex: 0x060D00
     public static final int REQUEST_MESSAGE_TYPE = 396544;
@@ -48,12 +48,6 @@ public final class SetIsEmptyCodec {
 
     private SetIsEmptyCodec() {
     }
-
-    /**
-     * Name of the Set
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -67,6 +61,9 @@ public final class SetIsEmptyCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the Set
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -85,8 +82,8 @@ public final class SetIsEmptyCodec {
     }
 
     /**
-    * True if this set contains no elements
-    */
+     * True if this set contains no elements
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

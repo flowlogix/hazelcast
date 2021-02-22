@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -735,7 +735,7 @@ public class ClientMapProxy<K, V> extends ClientProxy
 
     @Override
     public boolean tryLock(@Nonnull K key, long time, @Nullable TimeUnit timeunit) throws InterruptedException {
-        return tryLock(key, time, timeunit, Long.MAX_VALUE, null);
+        return tryLock(key, time, timeunit, UNSET, null);
     }
 
     @Override

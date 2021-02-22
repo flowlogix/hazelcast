@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Removes from this list all of its elements that are contained in the specified collection (optional operation).
  */
-@Generated("c6ae3e84f81d9d309b6be086434cb508")
+@Generated("8b485dedf2e2f63809b40436f7bc26b6")
 public final class ListCompareAndRemoveAllCodec {
     //hex: 0x050700
     public static final int REQUEST_MESSAGE_TYPE = 329472;
@@ -97,8 +97,8 @@ public final class ListCompareAndRemoveAllCodec {
     }
 
     /**
-    * True if removed at least one of the items, false otherwise.
-    */
+     * True if removed at least one of the items, false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

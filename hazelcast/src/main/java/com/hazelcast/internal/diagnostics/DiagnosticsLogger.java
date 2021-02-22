@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ final class DiagnosticsLogger implements DiagnosticsLog {
         this.diagnostics = diagnostics;
         this.logger = diagnostics.logger;
         this.diagnosticsLogger = diagnostics.loggingService.getLogger("com.hazelcast.diagnostics");
-        this.logWriter = new DiagnosticsLogWriterImpl(diagnostics.includeEpochTime);
+        this.logWriter = new DiagnosticsLogWriterImpl(diagnostics.includeEpochTime, diagnostics.logger);
         this.writer = new CharArrayWriter();
         logWriter.init(new PrintWriter(writer));
         logger.info("Sending diagnostics to the 'com.hazelcast.diagnostics' logger");
@@ -67,6 +67,7 @@ final class DiagnosticsLogger implements DiagnosticsLog {
     }
 
     private void renderPlugin(DiagnosticsPlugin plugin) {
+        logWriter.resetSectionLevel();
         plugin.run(logWriter);
     }
 }

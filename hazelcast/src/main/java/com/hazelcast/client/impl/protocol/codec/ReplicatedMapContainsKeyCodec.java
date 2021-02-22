@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns true if this map contains a mapping for the specified key.
  */
-@Generated("dda68b75ee68db26259e1027dacaa6c2")
+@Generated("218a06ba4d86534713a4f718b7ce232f")
 public final class ReplicatedMapContainsKeyCodec {
     //hex: 0x0D0400
     public static final int REQUEST_MESSAGE_TYPE = 852992;
@@ -97,8 +97,8 @@ public final class ReplicatedMapContainsKeyCodec {
     }
 
     /**
-    * <tt>True</tt> if this map contains a mapping for the specified key
-    */
+     * <tt>True</tt> if this map contains a mapping for the specified key
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

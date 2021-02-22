@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Obtains a list of prepared transaction from the cluster.
  */
-@Generated("99e777dc5ce62bfa12d0c00f21066b9b")
+@Generated("2df56d501c6000ad7617388c21abee6e")
 public final class XATransactionCollectTransactionsCodec {
     //hex: 0x140200
     public static final int REQUEST_MESSAGE_TYPE = 1311232;
@@ -47,7 +47,6 @@ public final class XATransactionCollectTransactionsCodec {
 
     private XATransactionCollectTransactionsCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -72,8 +71,8 @@ public final class XATransactionCollectTransactionsCodec {
     }
 
     /**
-    * Array of Xids.
-    */
+     * Array of Xids.
+     */
     public static java.util.List<javax.transaction.xa.Xid> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

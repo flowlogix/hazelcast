@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * purposes and lies dormant until one of two things happens the lock is acquired by the current thread, or
  * the specified waiting time elapses.
  */
-@Generated("f59d24b1b6e6589e544ce1d6693d853b")
+@Generated("5ccac6760e6f727636bf127c2e33f8c7")
 public final class MapTryLockCodec {
     //hex: 0x011100
     public static final int REQUEST_MESSAGE_TYPE = 69888;
@@ -131,8 +131,8 @@ public final class MapTryLockCodec {
     }
 
     /**
-    * Returns true if successful, otherwise returns false
-    */
+     * Returns true if successful, otherwise returns false
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

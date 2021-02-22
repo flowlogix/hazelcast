@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Applies the projection logic on all map entries and returns the result
  */
-@Generated("f172edc678181bde407f3b5b2457a50c")
+@Generated("7afc8171273b9f248b4b42a611bb8ccf")
 public final class MapProjectCodec {
     //hex: 0x013B00
     public static final int REQUEST_MESSAGE_TYPE = 80640;
@@ -96,8 +96,8 @@ public final class MapProjectCodec {
     }
 
     /**
-    * the resulted collection upon transformation to the type of the projection
-    */
+     * the resulted collection upon transformation to the type of the projection
+     */
     public static java.util.List<com.hazelcast.internal.serialization.Data> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

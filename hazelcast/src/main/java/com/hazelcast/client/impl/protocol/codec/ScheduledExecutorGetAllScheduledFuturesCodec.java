@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns all scheduled tasks in for a given scheduler in the given member.
  */
-@Generated("b06bda1a65bad6eb8f24633dad046547")
+@Generated("ae848fe7f3dd0879e6372c4cdcdd93c7")
 public final class ScheduledExecutorGetAllScheduledFuturesCodec {
     //hex: 0x1A0400
     public static final int REQUEST_MESSAGE_TYPE = 1704960;
@@ -47,12 +47,6 @@ public final class ScheduledExecutorGetAllScheduledFuturesCodec {
 
     private ScheduledExecutorGetAllScheduledFuturesCodec() {
     }
-
-    /**
-     * The name of the scheduler.
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String schedulerName;
 
     public static ClientMessage encodeRequest(java.lang.String schedulerName) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class ScheduledExecutorGetAllScheduledFuturesCodec {
         return clientMessage;
     }
 
+    /**
+     * The name of the scheduler.
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -84,8 +81,8 @@ public final class ScheduledExecutorGetAllScheduledFuturesCodec {
     }
 
     /**
-    * A list of scheduled task handlers used to construct the future proxies.
-    */
+     * A list of scheduled task handlers used to construct the future proxies.
+     */
     public static java.util.Collection<com.hazelcast.scheduledexecutor.ScheduledTaskHandler> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

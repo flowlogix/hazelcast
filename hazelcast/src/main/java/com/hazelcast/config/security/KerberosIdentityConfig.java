@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,24 @@ public class KerberosIdentityConfig implements IdentityConfig {
 
     public KerberosIdentityConfig setRealm(String realm) {
         factoryConfig.getProperties().setProperty("realm", realm);
+        return this;
+    }
+
+    public String getKeytabFile() {
+        return factoryConfig.getProperties().getProperty("keytabFile");
+    }
+
+    public KerberosIdentityConfig setKeytabFile(String keytabFile) {
+        factoryConfig.getProperties().setProperty("keytabFile", keytabFile);
+        return this;
+    }
+
+    public String getPrincipal() {
+        return factoryConfig.getProperties().getProperty("principal");
+    }
+
+    public KerberosIdentityConfig setPrincipal(String principal) {
+        factoryConfig.getProperties().setProperty("principal", principal);
         return this;
     }
 
@@ -117,6 +135,8 @@ public class KerberosIdentityConfig implements IdentityConfig {
         return "KerberosIdentityConfig [spn=" + getSpn() + ", serviceNamePrefix=" + getServiceNamePrefix()
                 + ", realm=" + getRealm()
                 + ", securityRealm=" + getSecurityRealm()
+                + ", principal=" + getPrincipal()
+                + ", keytabFile=" + getKeytabFile()
                 + ", useCanonicalHostname=" + getUseCanonicalHostname()
                 + "]";
     }

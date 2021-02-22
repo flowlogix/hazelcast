@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,21 @@
 
 package com.hazelcast.sql.impl.optimizer;
 
+import com.hazelcast.sql.impl.security.SqlSecurityContext;
+
 /**
  * Abstraction over execution plan that allows for specialization for an execution backend.
  */
 public interface SqlPlan {
+    /**
+     * Check whether the user has enough permissions to execute this plan.
+     *
+     * @param context security context
+     */
+    void checkPermissions(SqlSecurityContext context);
+
+    /**
+     * @return {@code true} if the query produces rows, {@code false} otherwise
+     */
+    boolean producesRows();
 }

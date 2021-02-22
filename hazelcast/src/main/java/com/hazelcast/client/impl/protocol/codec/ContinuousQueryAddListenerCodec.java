@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Adds a listener to be notified for the events fired on the underlying map on all nodes.
  */
-@Generated("2226fd37fe41989b522c13556352580c")
+@Generated("acb097e93234ffc790edcae388654f89")
 public final class ContinuousQueryAddListenerCodec {
     //hex: 0x160400
     public static final int REQUEST_MESSAGE_TYPE = 1442816;
@@ -105,8 +105,8 @@ public final class ContinuousQueryAddListenerCodec {
     }
 
     /**
-    * Registration id for the listener.
-    */
+     * Registration id for the listener.
+     */
     public static java.util.UUID decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();
@@ -163,7 +163,7 @@ public final class ContinuousQueryAddListenerCodec {
 
         /**
          * @param data Data that holds the details of the event such as key, value, old value, new value and creation time.
-        */
+         */
         public abstract void handleQueryCacheSingleEvent(com.hazelcast.map.impl.querycache.event.QueryCacheEventData data);
 
         /**
@@ -171,7 +171,7 @@ public final class ContinuousQueryAddListenerCodec {
          *               new value and creation time.
          * @param source Source that dispathces this batch event.
          * @param partitionId Id of the partition that holds the keys of the batch event.
-        */
+         */
         public abstract void handleQueryCacheBatchEvent(java.util.Collection<com.hazelcast.map.impl.querycache.event.QueryCacheEventData> events, java.lang.String source, int partitionId);
     }
 }

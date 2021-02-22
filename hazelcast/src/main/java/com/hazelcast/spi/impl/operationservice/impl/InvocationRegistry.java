@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import static com.hazelcast.spi.impl.operationservice.OperationAccessor.setCallI
 /**
  * Responsible for the registration of all pending invocations.
  * <p>
- * Using the InvocationRegistry the Invocation and its response(s) can be linked to each other.
+ * By using the InvocationRegistry, the Invocation and its response(s) can be linked to each other.
  * <p>
  * When an invocation is registered, a callId is determined. Based on this call ID, when a
  * {@link com.hazelcast.spi.impl.operationservice.impl.responses.Response} comes in, the

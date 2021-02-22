@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * The predicate, filter and projection may be {@code null} in which case all elements are returned
  * and no projection is applied.
  */
-@Generated("f6346af4e2127d1a5f6acb00dbb90214")
+@Generated("ab73348fb2cf8dba348b84da76958553")
 public final class CacheEventJournalReadCodec {
     //hex: 0x132000
     public static final int REQUEST_MESSAGE_TYPE = 1253376;
@@ -126,18 +126,22 @@ public final class CacheEventJournalReadCodec {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
     public static class ResponseParameters {
+
         /**
          * Number of items that have been read.
          */
         public int readCount;
+
         /**
          * List of items that have been read.
          */
         public java.util.List<com.hazelcast.internal.serialization.Data> items;
+
         /**
          * Sequence numbers of items in the event journal.
          */
         public @Nullable long[] itemSeqs;
+
         /**
          * Sequence number of the item following the last read item.
          */

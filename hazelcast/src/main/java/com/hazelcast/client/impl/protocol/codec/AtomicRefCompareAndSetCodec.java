@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Alters the currently stored value by applying a function on it.
  */
-@Generated("0da74531a2fbcb4b59ff1b4e0cb3c7f7")
+@Generated("9fe613d3d4159e890cfc3872be176e9a")
 public final class AtomicRefCompareAndSetCodec {
     //hex: 0x0A0200
     public static final int REQUEST_MESSAGE_TYPE = 655872;
@@ -111,9 +111,9 @@ public final class AtomicRefCompareAndSetCodec {
     }
 
     /**
-    * true if successful; or false if the actual value
-    * was not equal to the expected value.
-    */
+     * true if successful; or false if the actual value
+     * was not equal to the expected value.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

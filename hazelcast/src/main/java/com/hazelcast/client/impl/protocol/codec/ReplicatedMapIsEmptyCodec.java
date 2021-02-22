@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Return true if this map contains no key-value mappings
  */
-@Generated("0046d632c43c62cac8f0e5184427c008")
+@Generated("f51b72b6c4676950b120f60d8e899206")
 public final class ReplicatedMapIsEmptyCodec {
     //hex: 0x0D0300
     public static final int REQUEST_MESSAGE_TYPE = 852736;
@@ -48,12 +48,6 @@ public final class ReplicatedMapIsEmptyCodec {
 
     private ReplicatedMapIsEmptyCodec() {
     }
-
-    /**
-     * Name of the ReplicatedMap
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -67,6 +61,9 @@ public final class ReplicatedMapIsEmptyCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the ReplicatedMap
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -85,8 +82,8 @@ public final class ReplicatedMapIsEmptyCodec {
     }
 
     /**
-    * <tt>True</tt> if this map contains no key-value mappings
-    */
+     * <tt>True</tt> if this map contains no key-value mappings
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

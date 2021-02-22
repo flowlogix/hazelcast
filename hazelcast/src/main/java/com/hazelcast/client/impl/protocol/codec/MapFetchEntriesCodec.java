@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Fetches specified number of entries from the specified partition starting from specified table index.
  */
-@Generated("7ec30a8d8f1b2c260f0ce0e1370ca679")
+@Generated("60351c6bfc6607427f5073db8df8ee1c")
 public final class MapFetchEntriesCodec {
     //hex: 0x013800
     public static final int REQUEST_MESSAGE_TYPE = 79872;
@@ -94,10 +94,12 @@ public final class MapFetchEntriesCodec {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
     public static class ResponseParameters {
+
         /**
          * The index-size pairs that define the state of iteration
          */
         public java.util.List<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> iterationPointers;
+
         /**
          * List of entries.
          */

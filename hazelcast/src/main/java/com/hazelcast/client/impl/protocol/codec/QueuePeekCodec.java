@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Retrieves, but does not remove, the head of this queue, or returns null if this queue is empty.
  */
-@Generated("efafea63f4f42e085df845f855530f63")
+@Generated("221a659a8a5299dbd4eb780502ced01f")
 public final class QueuePeekCodec {
     //hex: 0x030700
     public static final int REQUEST_MESSAGE_TYPE = 198400;
@@ -47,12 +47,6 @@ public final class QueuePeekCodec {
 
     private QueuePeekCodec() {
     }
-
-    /**
-     * Name of the Queue
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class QueuePeekCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the Queue
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -84,8 +81,8 @@ public final class QueuePeekCodec {
     }
 
     /**
-    * The head of this queue, or <tt>null</tt> if this queue is empty
-    */
+     * The head of this queue, or <tt>null</tt> if this queue is empty
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

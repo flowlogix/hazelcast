@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Closes the given session on the given CP group
  */
-@Generated("4279a0c20dc40f09645690994ddf7091")
+@Generated("0fb733b885ede08a14aaba5273ed099a")
 public final class CPSessionCloseSessionCodec {
     //hex: 0x1F0200
     public static final int REQUEST_MESSAGE_TYPE = 2032128;
@@ -97,9 +97,9 @@ public final class CPSessionCloseSessionCodec {
     }
 
     /**
-    * true if the session is found & closed,
-    * false otherwise.
-    */
+     * true if the session is found & closed,
+     * false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

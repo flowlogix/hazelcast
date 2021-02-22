@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Replaces the entry for a key only if currently mapped to a given value.
  */
-@Generated("25e899458b0b6ae7143349b20b19ee32")
+@Generated("4fa6c29c238910fe68a315e5deb31043")
 public final class MapReplaceCodec {
     //hex: 0x010400
     public static final int REQUEST_MESSAGE_TYPE = 66560;
@@ -110,8 +110,8 @@ public final class MapReplaceCodec {
     }
 
     /**
-    * Clone of the previous value, not the original (identically equal) value previously put into the map.
-    */
+     * Clone of the previous value, not the original (identically equal) value previously put into the map.
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

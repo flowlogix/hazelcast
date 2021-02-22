@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the number of available permits.
  */
-@Generated("76eec9ecf8de60561621b1f1cc89308b")
+@Generated("4e65fe9993801c72167d91ca80122fa2")
 public final class SemaphoreAvailablePermitsCodec {
     //hex: 0x0C0600
     public static final int REQUEST_MESSAGE_TYPE = 787968;
@@ -97,8 +97,8 @@ public final class SemaphoreAvailablePermitsCodec {
     }
 
     /**
-    * number of available permits
-    */
+     * number of available permits
+     */
     public static int decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

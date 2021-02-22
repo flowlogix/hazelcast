@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Removes all the entries associated with the given key.
  */
-@Generated("f615e45f0295b2e88899e6db70a8459f")
+@Generated("5baefe279ceaa131dfc0380a8c244b74")
 public final class TransactionalMultiMapRemoveEntryCodec {
     //hex: 0x0F0400
     public static final int REQUEST_MESSAGE_TYPE = 984064;
@@ -119,8 +119,8 @@ public final class TransactionalMultiMapRemoveEntryCodec {
     }
 
     /**
-    * True if the size of the multimap changed after the remove operation, false otherwise.
-    */
+     * True if the size of the multimap changed after the remove operation, false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

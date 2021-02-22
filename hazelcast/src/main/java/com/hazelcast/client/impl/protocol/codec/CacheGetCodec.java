@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * null is returned. If the cache is configured for read-through operation mode, the underlying configured
  * javax.cache.integration.CacheLoader might be called to retrieve the value of the key from any kind of external resource.
  */
-@Generated("b2de09782d7cd1e162028004b4c13026")
+@Generated("525bdb91b8230a96e62c3d9c0c3d4144")
 public final class CacheGetCodec {
     //hex: 0x130D00
     public static final int REQUEST_MESSAGE_TYPE = 1248512;
@@ -106,8 +106,8 @@ public final class CacheGetCodec {
     }
 
     /**
-    * The value assigned to the given key, or null if not assigned.
-    */
+     * The value assigned to the given key, or null if not assigned.
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

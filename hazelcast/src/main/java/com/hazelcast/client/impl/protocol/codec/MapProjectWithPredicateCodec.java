@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Applies the projection logic on map entries filtered with the Predicate and returns the result
  */
-@Generated("fe55c43b2db1cc3492f3340d24b70b98")
+@Generated("7d328e52f172ad049af790c7917b6391")
 public final class MapProjectWithPredicateCodec {
     //hex: 0x013C00
     public static final int REQUEST_MESSAGE_TYPE = 80896;
@@ -103,8 +103,8 @@ public final class MapProjectWithPredicateCodec {
     }
 
     /**
-    * the resulted collection upon transformation to the type of the projection
-    */
+     * the resulted collection upon transformation to the type of the projection
+     */
     public static java.util.List<com.hazelcast.internal.serialization.Data> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

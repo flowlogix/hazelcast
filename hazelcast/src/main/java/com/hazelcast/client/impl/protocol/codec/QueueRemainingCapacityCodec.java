@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * always tell if an attempt to insert an element will succeed by inspecting remainingCapacity because it may be
  * the case that another thread is about to insert or remove an element.
  */
-@Generated("d62c89dcd19fa8777e59f68022577e31")
+@Generated("34c5f1215fc22bfcd96fd4fd4389bb1b")
 public final class QueueRemainingCapacityCodec {
     //hex: 0x031300
     public static final int REQUEST_MESSAGE_TYPE = 201472;
@@ -51,12 +51,6 @@ public final class QueueRemainingCapacityCodec {
 
     private QueueRemainingCapacityCodec() {
     }
-
-    /**
-     * Name of the Queue
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -70,6 +64,9 @@ public final class QueueRemainingCapacityCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the Queue
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -88,8 +85,8 @@ public final class QueueRemainingCapacityCodec {
     }
 
     /**
-    * The remaining capacity
-    */
+     * The remaining capacity
+     */
     public static int decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

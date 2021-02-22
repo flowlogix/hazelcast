@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,13 @@ public final class Versions {
      */
     public static final Version V4_1 = Version.of(4, 1);
 
-    public static final Version PREVIOUS_CLUSTER_VERSION = V4_0;
-    public static final Version CURRENT_CLUSTER_VERSION = V4_1;
+    /**
+     * Cluster version 4.2
+     */
+    public static final Version V4_2 = Version.of(4, 2);
+
+    public static final Version PREVIOUS_CLUSTER_VERSION = V4_1;
+    public static final Version CURRENT_CLUSTER_VERSION = V4_2;
 
     private Versions() {
     }

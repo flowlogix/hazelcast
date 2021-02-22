@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Initiate WAN sync for a specific map or all maps
  */
-@Generated("0938d5f7d7908bae83719c30ff3ecefe")
+@Generated("86e411fe69ea8fe87f450ef4c45b1d5d")
 public final class MCWanSyncMapCodec {
     //hex: 0x201600
     public static final int REQUEST_MESSAGE_TYPE = 2102784;
@@ -113,8 +113,8 @@ public final class MCWanSyncMapCodec {
     }
 
     /**
-    * UUID of the synchronization
-    */
+     * UUID of the synchronization
+     */
     public static java.util.UUID decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

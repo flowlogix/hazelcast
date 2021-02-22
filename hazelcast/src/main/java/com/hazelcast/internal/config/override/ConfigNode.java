@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ class ConfigNode {
     private final String name;
     private final Map<String, ConfigNode> children = new LinkedHashMap<>();
     private String value;
+    private boolean isRead;
 
     ConfigNode(@Nonnull String name) {
         this(name, null);
@@ -42,12 +43,21 @@ class ConfigNode {
         this.parent = parent;
     }
 
+    boolean isRead() {
+        return isRead;
+    }
+
     String getName() {
         return name;
     }
 
-    Optional<String> getValue() {
-        return Optional.ofNullable(value);
+    boolean hasValue() {
+        return value != null;
+    }
+
+    String getValue() {
+        isRead = true;
+        return value;
     }
 
     void setValue(String value) {

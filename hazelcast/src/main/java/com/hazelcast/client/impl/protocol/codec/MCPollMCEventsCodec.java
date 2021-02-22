@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Polls events available on member. Once read, events are removed from
  * member's internal queue.
  */
-@Generated("c445377c8afc20640b1bdf76dbb5816b")
+@Generated("afe5e747cdca6674db97bf3b9909ad99")
 public final class MCPollMCEventsCodec {
     //hex: 0x201800
     public static final int REQUEST_MESSAGE_TYPE = 2103296;
@@ -48,7 +48,6 @@ public final class MCPollMCEventsCodec {
 
     private MCPollMCEventsCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -73,8 +72,8 @@ public final class MCPollMCEventsCodec {
     }
 
     /**
-    * List of events.
-    */
+     * List of events.
+     */
     public static java.util.List<com.hazelcast.internal.management.dto.MCEventDTO> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Removes all of the elements from this set (optional operation). The set will be empty after this call returns.
  */
-@Generated("baec32172c11aee81886555dd5e1a183")
+@Generated("236c1523ccca7ed003bed11224eabfc1")
 public final class SetClearCodec {
     //hex: 0x060900
     public static final int REQUEST_MESSAGE_TYPE = 395520;
@@ -47,12 +47,6 @@ public final class SetClearCodec {
 
     private SetClearCodec() {
     }
-
-    /**
-     * Name of the Set
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class SetClearCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the Set
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import static com.hazelcast.internal.metrics.MetricDescriptorConstants.TCP_METRIC_CONNECTION_CONNECTION_TYPE;
 import static com.hazelcast.internal.metrics.ProbeUnit.ENUM;
@@ -246,6 +249,15 @@ public class TcpServerConnection implements ServerConnection {
 
         lifecycleListener.onConnectionClose(this, null, false);
         serverContext.onDisconnect(remoteAddress, cause);
+
+        LoginContext lc = (LoginContext) attributeMap.remove(LoginContext.class);
+        if (lc != null) {
+            try {
+                lc.logout();
+            } catch (LoginException e) {
+                logger.warning("Logout failed", e);
+            }
+        }
         if (cause != null && errorHandler != null) {
             errorHandler.onError(cause);
         }
@@ -318,6 +330,7 @@ public class TcpServerConnection implements ServerConnection {
                 + ", endpoint=" + remoteAddress
                 + ", alive=" + alive
                 + ", connectionType=" + connectionType
+                + ", planeIndex=" + planeIndex
                 + "]";
     }
 }

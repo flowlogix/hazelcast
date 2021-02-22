@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Retrieves the result of the execution with the given sequence
  */
-@Generated("91a38293c8185f556f43b022cb8df753")
+@Generated("3cb2faef65a92d9b6d7bcc041723ab6c")
 public final class DurableExecutorRetrieveResultCodec {
     //hex: 0x180400
     public static final int REQUEST_MESSAGE_TYPE = 1573888;
@@ -96,8 +96,8 @@ public final class DurableExecutorRetrieveResultCodec {
     }
 
     /**
-    * The result of the callable execution with the given sequence.
-    */
+     * The result of the callable execution with the given sequence.
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

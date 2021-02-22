@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Stores a key-value pair in the multimap.
  */
-@Generated("53b8be8ff98ae8d7b01d9ba5e59dbef5")
+@Generated("f05ac054a1cab14b8d6721f04c394a0e")
 public final class MultiMapPutCodec {
     //hex: 0x020100
     public static final int REQUEST_MESSAGE_TYPE = 131328;
@@ -111,8 +111,8 @@ public final class MultiMapPutCodec {
     }
 
     /**
-    * True if size of the multimap is increased, false if the multimap already contains the key-value pair.
-    */
+     * True if size of the multimap is increased, false if the multimap already contains the key-value pair.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

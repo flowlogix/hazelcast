@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,6 @@ import com.hazelcast.core.HazelcastException;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.instance.impl.NodeExtension;
 import com.hazelcast.internal.cluster.ClusterService;
-import com.hazelcast.internal.cluster.ClusterVersionListener;
-import com.hazelcast.internal.cluster.Versions;
 import com.hazelcast.internal.cluster.impl.ClusterServiceImpl;
 import com.hazelcast.internal.metrics.Probe;
 import com.hazelcast.internal.partition.InternalPartition;
@@ -39,12 +37,10 @@ import com.hazelcast.internal.partition.membergroup.MemberGroupFactory;
 import com.hazelcast.internal.partition.membergroup.MemberGroupFactoryFactory;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.partitiongroup.MemberGroup;
-import com.hazelcast.version.Version;
 
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.hazelcast.cluster.memberselector.MemberSelectors.DATA_MEMBER_SELECTOR;
 import static com.hazelcast.internal.metrics.MetricDescriptorConstants.PARTITIONS_METRIC_PARTITION_REPLICA_STATE_MANAGER_ACTIVE_PARTITION_COUNT;
@@ -52,14 +48,13 @@ import static com.hazelcast.internal.metrics.MetricDescriptorConstants.PARTITION
 import static com.hazelcast.internal.metrics.MetricDescriptorConstants.PARTITIONS_METRIC_PARTITION_REPLICA_STATE_MANAGER_MEMBER_GROUP_SIZE;
 import static com.hazelcast.internal.metrics.MetricDescriptorConstants.PARTITIONS_METRIC_PARTITION_REPLICA_STATE_MANAGER_PARTITION_COUNT;
 import static com.hazelcast.internal.metrics.MetricDescriptorConstants.PARTITIONS_METRIC_PARTITION_REPLICA_STATE_MANAGER_STAMP;
-import static com.hazelcast.internal.metrics.MetricDescriptorConstants.PARTITIONS_METRIC_PARTITION_REPLICA_STATE_MANAGER_VERSION;
 import static com.hazelcast.internal.partition.PartitionStamp.calculateStamp;
 
 /**
  * Maintains the partition table state.
  */
 @SuppressWarnings({"checkstyle:methodcount"})
-public class PartitionStateManager implements ClusterVersionListener {
+public class PartitionStateManager {
 
     /**
      * Initial value of the partition table stamp.
@@ -75,11 +70,6 @@ public class PartitionStateManager implements ClusterVersionListener {
     @Probe(name = PARTITIONS_METRIC_PARTITION_REPLICA_STATE_MANAGER_PARTITION_COUNT)
     private final int partitionCount;
     private final InternalPartitionImpl[] partitions;
-
-    //RU_COMPAT_4_0
-    @Probe(name = PARTITIONS_METRIC_PARTITION_REPLICA_STATE_MANAGER_VERSION)
-    @Deprecated
-    private final AtomicInteger stateVersion = new AtomicInteger();
 
     private final PartitionStateGenerator partitionStateGenerator;
     private final MemberGroupFactory memberGroupFactory;
@@ -243,8 +233,6 @@ public class PartitionStateManager implements ClusterVersionListener {
                 partition.setReplicasAndVersion(newPartition);
             }
         }
-        //RU_COMPAT_4_0
-        stateVersion.set(partitionTable.version());
         if (foundReplica) {
             setInitialized();
         }
@@ -367,16 +355,10 @@ public class PartitionStateManager implements ClusterVersionListener {
         return partitions[partitionId].isMigrating();
     }
 
-    /** Sets the replica members for the {@code partitionId}. */
-    void updateReplicas(int partitionId, InternalPartition replicas) {
-        InternalPartitionImpl partition = partitions[partitionId];
-        partition.setReplicasAndVersion(replicas);
-    }
-
     public void updateStamp() {
         stateStamp = calculateStamp(partitions);
         if (logger.isFinestEnabled()) {
-            logger.finest("New partition state stamp is: " + stateStamp);
+            logger.finest("New calculated partition state stamp is: " + stateStamp);
         }
     }
 
@@ -388,34 +370,13 @@ public class PartitionStateManager implements ClusterVersionListener {
         return partitions[partitionId].version();
     }
 
-    public void incrementPartitionVersion(int partitionId, int delta) {
-        partitions[partitionId].incrementVersion(delta);
-    }
-
-    // called under partition service lock
-    //RU_COMPAT_4_0
-    @Deprecated
-    void setVersion(int version) {
-        stateVersion.set(version);
-    }
-
-    //RU_COMPAT_4_0
-    @Deprecated
-    public int getVersion() {
-        return stateVersion.get();
-    }
-
-    //RU_COMPAT_4_0
-    @Deprecated
-    void incrementVersion(int delta) {
-        assert delta > 0 : "Delta: " + delta;
-        stateVersion.addAndGet(delta);
-    }
-
-    //RU_COMPAT_4_0
-    @Deprecated
-    void incrementVersion() {
-        stateVersion.incrementAndGet();
+    /**
+     * Increments partition version by delta and updates partition state stamp.
+     */
+    void incrementPartitionVersion(int partitionId, int delta) {
+        InternalPartitionImpl partition = partitions[partitionId];
+        partition.setVersion(partition.version() + delta);
+        updateStamp();
     }
 
     boolean setInitialized() {
@@ -434,8 +395,7 @@ public class PartitionStateManager implements ClusterVersionListener {
 
     void reset() {
         initialized = false;
-        stateStamp = 0;
-        stateVersion.set(0);
+        stateStamp = INITIAL_STAMP;
         // local member uuid changes during ClusterService reset
         PartitionReplica localReplica = PartitionReplica.from(node.getLocalMember());
         for (InternalPartitionImpl partition : partitions) {
@@ -465,22 +425,6 @@ public class PartitionStateManager implements ClusterVersionListener {
     }
 
     PartitionTableView getPartitionTable() {
-        int version = 0;
-        if (node.getClusterService().getClusterVersion().isUnknownOrLessOrEqual(Versions.V4_0)) {
-            //RU_COMPAT_4_0
-            version = getVersion();
-        }
-        return new PartitionTableView(getPartitionsCopy(true), version);
-    }
-
-    @Override
-    public void onClusterVersionChange(Version newVersion) {
-        if (newVersion.isEqualTo(Versions.V4_1) && initialized) {
-            int version = getVersion();
-            for (InternalPartitionImpl partition : partitions) {
-                partition.setVersion(version);
-            }
-            updateStamp();
-        }
+        return new PartitionTableView(getPartitionsCopy(true));
     }
 }

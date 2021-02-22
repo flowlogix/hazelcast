@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,11 +186,15 @@ public abstract class HazelcastTestSupport {
 
     public static Config smallInstanceConfig() {
         // make the test instances consume less resources per default
-        return new Config()
+        Config config = new Config()
                 .setProperty(ClusterProperty.PARTITION_COUNT.getName(), "11")
                 .setProperty(ClusterProperty.PARTITION_OPERATION_THREAD_COUNT.getName(), "2")
                 .setProperty(ClusterProperty.GENERIC_OPERATION_THREAD_COUNT.getName(), "2")
                 .setProperty(ClusterProperty.EVENT_THREAD_COUNT.getName(), "1");
+
+        config.getSqlConfig().setExecutorPoolSize(2);
+
+        return config;
     }
 
     public static Config regularInstanceConfig() {
@@ -545,7 +549,6 @@ public abstract class HazelcastTestSupport {
         Cluster cluster = instance.getCluster();
         checkPartitionCountGreaterOrEqualMemberCount(instance);
 
-        Member localMember = cluster.getLocalMember();
         PartitionService partitionService = instance.getPartitionService();
         while (true) {
             String id = randomString();
@@ -560,7 +563,6 @@ public abstract class HazelcastTestSupport {
         Cluster cluster = instance.getCluster();
         checkPartitionCountGreaterOrEqualMemberCount(instance);
 
-        Member localMember = cluster.getLocalMember();
         PartitionService partitionService = instance.getPartitionService();
         while (true) {
             String id = prefix + randomString();
@@ -590,11 +592,8 @@ public abstract class HazelcastTestSupport {
     }
 
     private static void checkPartitionCountGreaterOrEqualMemberCount(HazelcastInstance instance) {
-        Cluster cluster = instance.getCluster();
-        int memberCount = cluster.getMembers().size();
-
-        InternalPartitionService internalPartitionService = Accessors.getPartitionService(instance);
-        int partitionCount = internalPartitionService.getPartitionCount();
+        int memberCount = instance.getCluster().getMembers().size();
+        int partitionCount = instance.getPartitionService().getPartitions().size();
 
         if (partitionCount < memberCount) {
             throw new UnsupportedOperationException("Partition count should be equal or greater than member count!");
@@ -1387,6 +1386,9 @@ public abstract class HazelcastTestSupport {
         assertNotEquals(format(message, expected, actual), expected, actual);
     }
 
+    /**
+     * Assert that {@code actualValue >= lowerBound && actualValue <= upperBound}.
+     */
     public static void assertBetween(String label, long actualValue, long lowerBound, long upperBound) {
         assertTrue(format("Expected '%s' to be between %d and %d, but was %d", label, lowerBound, upperBound, actualValue),
                 actualValue >= lowerBound && actualValue <= upperBound);
@@ -1439,7 +1441,8 @@ public abstract class HazelcastTestSupport {
             if (expectedType.isInstance(actualException)) {
                 return (T) actualException;
             } else {
-                String excMsg = String.format("Unexpected %s exception type thrown", actualException.getClass().getName());
+                String excMsg = String.format("Unexpected %s exception type thrown with message:\n%s",
+                        actualException.getClass().getName(), actualException.getMessage());
                 throw new AssertionFailedError(excMsg);
             }
         }

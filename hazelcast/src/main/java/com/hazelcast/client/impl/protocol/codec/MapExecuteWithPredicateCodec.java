@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Applies the user defined EntryProcessor to the entries in the map which satisfies provided predicate.
  * Returns the results mapped by each key in the map.
  */
-@Generated("8ada90459632509644272660424766af")
+@Generated("5c6b5764664673c4c6ac6d030a870f4e")
 public final class MapExecuteWithPredicateCodec {
     //hex: 0x013100
     public static final int REQUEST_MESSAGE_TYPE = 78080;
@@ -104,8 +104,8 @@ public final class MapExecuteWithPredicateCodec {
     }
 
     /**
-    * results of entry process on the entries matching the query criteria
-    */
+     * results of entry process on the entries matching the query criteria
+     */
     public static java.util.List<java.util.Map.Entry<com.hazelcast.internal.serialization.Data, com.hazelcast.internal.serialization.Data>> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

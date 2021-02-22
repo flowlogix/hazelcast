@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the current count.
  */
-@Generated("aeb101fabad895cde17a2752afbc0a43")
+@Generated("5976a811e8ced35bf7cd481ef1d1019e")
 public final class CountDownLatchGetCountCodec {
     //hex: 0x0B0400
     public static final int REQUEST_MESSAGE_TYPE = 721920;
@@ -97,8 +97,8 @@ public final class CountDownLatchGetCountCodec {
     }
 
     /**
-    * The current count of this CountDownLatch instance
-    */
+     * The current count of this CountDownLatch instance
+     */
     public static int decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

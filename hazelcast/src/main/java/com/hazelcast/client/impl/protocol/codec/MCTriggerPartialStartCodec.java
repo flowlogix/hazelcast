@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Triggers partial start
  */
-@Generated("34a3c9af0f6b45db942ec4d5b59f64a0")
+@Generated("f0e86350d8b84968b7ff8dab2786552e")
 public final class MCTriggerPartialStartCodec {
     //hex: 0x201D00
     public static final int REQUEST_MESSAGE_TYPE = 2104576;
@@ -48,7 +48,6 @@ public final class MCTriggerPartialStartCodec {
 
     private MCTriggerPartialStartCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -73,8 +72,8 @@ public final class MCTriggerPartialStartCodec {
     }
 
     /**
-    * True if the partial restart was successfully initiated, false otherwise
-    */
+     * True if the partial restart was successfully initiated, false otherwise
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

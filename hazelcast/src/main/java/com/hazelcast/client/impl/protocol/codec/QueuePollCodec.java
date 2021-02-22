@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Retrieves and removes the head of this queue, waiting up to the specified wait time if necessary for an element
  * to become available.
  */
-@Generated("2590f1cb1f38b21eacf62d6931bed007")
+@Generated("cd82996c0ab27c0f7659b0a84bfe8e82")
 public final class QueuePollCodec {
     //hex: 0x030500
     public static final int REQUEST_MESSAGE_TYPE = 197888;
@@ -97,8 +97,8 @@ public final class QueuePollCodec {
     }
 
     /**
-    * The head of this queue, or <tt>null</tt> if this queue is empty
-    */
+     * The head of this queue, or <tt>null</tt> if this queue is empty
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

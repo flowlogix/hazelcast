@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Ask a member to prepare for a transaction commit of the transaction specified in xid.
  */
-@Generated("439608f1957af7a9f9de317f35ac3058")
+@Generated("e4bc7f3363ef06eb880aef0b16f69f3e")
 public final class XATransactionPrepareCodec {
     //hex: 0x140600
     public static final int REQUEST_MESSAGE_TYPE = 1312256;
@@ -48,12 +48,6 @@ public final class XATransactionPrepareCodec {
 
     private XATransactionPrepareCodec() {
     }
-
-    /**
-     * The id of the transaction to prepare.
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.util.UUID transactionId;
 
     public static ClientMessage encodeRequest(java.util.UUID transactionId) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -67,6 +61,9 @@ public final class XATransactionPrepareCodec {
         return clientMessage;
     }
 
+    /**
+     * The id of the transaction to prepare.
+     */
     public static java.util.UUID decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Generates a new ID for the caller thread. The ID is unique in the given
  * CP group.
  */
-@Generated("5c8569ed132144792102705be779a1c9")
+@Generated("473c6a9adf52f0dbf3a7181940a417d8")
 public final class CPSessionGenerateThreadIdCodec {
     //hex: 0x1F0400
     public static final int REQUEST_MESSAGE_TYPE = 2032640;
@@ -49,12 +49,6 @@ public final class CPSessionGenerateThreadIdCodec {
 
     private CPSessionGenerateThreadIdCodec() {
     }
-
-    /**
-     * ID of the CP group
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public com.hazelcast.cp.internal.RaftGroupId groupId;
 
     public static ClientMessage encodeRequest(com.hazelcast.cp.internal.RaftGroupId groupId) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -68,6 +62,9 @@ public final class CPSessionGenerateThreadIdCodec {
         return clientMessage;
     }
 
+    /**
+     * ID of the CP group
+     */
     public static com.hazelcast.cp.internal.RaftGroupId decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -86,8 +83,8 @@ public final class CPSessionGenerateThreadIdCodec {
     }
 
     /**
-    * A unique ID for the caller thread
-    */
+     * A unique ID for the caller thread
+     */
     public static long decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

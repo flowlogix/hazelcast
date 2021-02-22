@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,6 @@
  */
 
 package com.hazelcast.config;
-
-import static com.hazelcast.internal.config.AliasedDiscoveryConfigUtils.aliasedDiscoveryConfigsFrom;
-import static com.hazelcast.internal.config.ConfigUtils.lookupByPattern;
-import static java.text.MessageFormat.format;
-import static java.util.Collections.singletonMap;
-import static org.codehaus.groovy.runtime.InvokerHelper.asList;
-import static org.junit.Assert.assertEquals;
 
 import com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig;
 import com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.DurationConfig;
@@ -43,6 +36,8 @@ import com.hazelcast.instance.EndpointQualifier;
 import com.hazelcast.internal.config.AliasedDiscoveryConfigUtils;
 import com.hazelcast.internal.config.ServicesConfig;
 import com.hazelcast.internal.util.CollectionUtil;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,7 +48,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import org.apache.commons.lang3.ArrayUtils;
+
+import static com.hazelcast.internal.config.AliasedDiscoveryConfigUtils.aliasedDiscoveryConfigsFrom;
+import static com.hazelcast.internal.config.ConfigUtils.lookupByPattern;
+import static java.text.MessageFormat.format;
+import static java.util.Collections.singletonMap;
+import static org.codehaus.groovy.runtime.InvokerHelper.asList;
+import static org.junit.Assert.assertEquals;
 
 public class ConfigCompatibilityChecker {
 
@@ -803,6 +804,8 @@ public class ConfigCompatibilityChecker {
                     && c1.getMetadataSpacePercentage() == c2.getMetadataSpacePercentage()
                     && c1.getMinBlockSize() == c2.getMinBlockSize()
                     && c1.getPageSize() == c2.getPageSize()
+                    && c1.getPersistentMemoryConfig().isEnabled() == c2.getPersistentMemoryConfig().isEnabled()
+                    && c1.getPersistentMemoryConfig().getMode() == c2.getPersistentMemoryConfig().getMode()
                     && c1.getPersistentMemoryConfig().getDirectoryConfigs()
                          .equals(c2.getPersistentMemoryConfig().getDirectoryConfigs());
         }
@@ -825,7 +828,6 @@ public class ConfigCompatibilityChecker {
             }
 
             return c1.getExecutorPoolSize() == c2.getExecutorPoolSize()
-                    && c1.getOperationPoolSize() == c2.getOperationPoolSize()
                     && c1.getStatementTimeoutMillis() == c2.getStatementTimeoutMillis();
         }
 
@@ -1550,6 +1552,7 @@ public class ConfigCompatibilityChecker {
                     && nullSafeEqual(c1.isEnableCompression(), c2.isEnableCompression())
                     && nullSafeEqual(c1.isEnableSharedObject(), c2.isEnableSharedObject())
                     && nullSafeEqual(c1.isAllowUnsafe(), c2.isAllowUnsafe())
+                    && nullSafeEqual(c1.isAllowOverrideDefaultSerializers(), c2.isAllowOverrideDefaultSerializers())
                     && nullSafeEqual(c1.getJavaSerializationFilterConfig(), c2.getJavaSerializationFilterConfig());
         }
 

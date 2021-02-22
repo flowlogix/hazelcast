@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import static com.hazelcast.internal.metrics.MetricTarget.MANAGEMENT_CENTER;
 public final class ClientEndpointImpl implements ClientEndpoint {
     private static final String METRICS_TAG_CLIENT = "client";
     private static final String METRICS_TAG_TIMESTAMP = "timestamp";
+    private static final String METRICS_TAG_CLIENTNAME = "clientname";
 
     private final ClientEngine clientEngine;
     private final ILogger logger;
@@ -305,8 +306,9 @@ public final class ClientEndpointImpl implements ClientEndpoint {
                             // since we want to send the client-side metrics only to MC
                             .withExcludedTargets(MetricTarget.ALL_TARGETS)
                             .withIncludedTarget(MANAGEMENT_CENTER)
-                            // we add "client" and "timestamp" tags for MC
+                            // we add "client", "clientname" and "timestamp" tags for MC
                             .withTag(METRICS_TAG_CLIENT, getUuid().toString())
+                            .withTag(METRICS_TAG_CLIENTNAME, clientName)
                             .withTag(METRICS_TAG_TIMESTAMP, Long.toString(timestamp));
                 }
             };

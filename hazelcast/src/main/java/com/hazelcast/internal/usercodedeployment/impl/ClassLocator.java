@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,13 +162,13 @@ public final class ClassLocator {
                     classSource = doPrivileged(
                             (PrivilegedAction<ClassSource>) () -> new ClassSource(parent, this, Collections.emptyMap()));
                 }
-                ClassData classData = fetchBytecodeFromRemote(name);
+                ClassData classData = fetchBytecodeFromRemote(mainClassName);
                 if (classData == null) {
                     throw new ClassNotFoundException("Failed to load class " + name + " from other members");
                 }
 
                 Map<String, byte[]> innerClassDefinitions = classData.getInnerClassDefinitions();
-                classSource.define(name, classData.getMainClassDefinition());
+                classSource.define(mainClassName, classData.getMainClassDefinition());
                 for (Map.Entry<String, byte[]> entry : innerClassDefinitions.entrySet()) {
                     classSource.define(entry.getKey(), entry.getValue());
                 }

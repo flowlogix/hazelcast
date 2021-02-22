@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Checks if the reference contains the value.
  */
-@Generated("22e366b255c93b6b57600782a1e380ca")
+@Generated("cca1651c9887ac080e71082ffdd861eb")
 public final class AtomicRefContainsCodec {
     //hex: 0x0A0300
     public static final int REQUEST_MESSAGE_TYPE = 656128;
@@ -104,8 +104,8 @@ public final class AtomicRefContainsCodec {
     }
 
     /**
-    * true if the value is found, false otherwise.
-    */
+     * true if the value is found, false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

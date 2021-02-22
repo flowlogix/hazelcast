@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * configured javax.cache.integration.CacheLoader might be called to retrieve the values of the keys from any kind
  * of external resource.
  */
-@Generated("971482091094574aef70809b5c6ba61e")
+@Generated("7a3f80675e02f3f57c139b81b9fd8f5f")
 public final class CacheGetAllCodec {
     //hex: 0x130900
     public static final int REQUEST_MESSAGE_TYPE = 1247488;
@@ -107,9 +107,9 @@ public final class CacheGetAllCodec {
     }
 
     /**
-    * A map of entries that were found for the given keys. Keys not found
-    * in the cache are not in the returned map.
-    */
+     * A map of entries that were found for the given keys. Keys not found
+     * in the cache are not in the returned map.
+     */
     public static java.util.List<java.util.Map.Entry<com.hazelcast.internal.serialization.Data, com.hazelcast.internal.serialization.Data>> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

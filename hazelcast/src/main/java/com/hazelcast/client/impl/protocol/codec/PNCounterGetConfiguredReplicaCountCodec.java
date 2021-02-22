@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * The actual replica count may be less, depending on the number of data
  * members in the cluster (members that own data).
  */
-@Generated("702724bffbe0a7e6ad410d5ac0022f7b")
+@Generated("0467deab9b4fd1ca0ea866e8f9118ff4")
 public final class PNCounterGetConfiguredReplicaCountCodec {
     //hex: 0x1D0300
     public static final int REQUEST_MESSAGE_TYPE = 1901312;
@@ -51,12 +51,6 @@ public final class PNCounterGetConfiguredReplicaCountCodec {
 
     private PNCounterGetConfiguredReplicaCountCodec() {
     }
-
-    /**
-     * the name of the PNCounter
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -70,6 +64,9 @@ public final class PNCounterGetConfiguredReplicaCountCodec {
         return clientMessage;
     }
 
+    /**
+     * the name of the PNCounter
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -88,8 +85,8 @@ public final class PNCounterGetConfiguredReplicaCountCodec {
     }
 
     /**
-    * the configured replica count
-    */
+     * the configured replica count
+     */
     public static int decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

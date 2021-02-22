@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Triggers force start
  */
-@Generated("a494beab70416da5299d629582484fed")
+@Generated("b3c281ec2dac96294e51195c5d67dd8f")
 public final class MCTriggerForceStartCodec {
     //hex: 0x201E00
     public static final int REQUEST_MESSAGE_TYPE = 2104832;
@@ -48,7 +48,6 @@ public final class MCTriggerForceStartCodec {
 
     private MCTriggerForceStartCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -73,8 +72,8 @@ public final class MCTriggerForceStartCodec {
     }
 
     /**
-    * True if the forced start was successfully initiated, false otherwise
-    */
+     * True if the forced start was successfully initiated, false otherwise
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,6 @@
  */
 
 package com.hazelcast.config;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.TimedExpiryPolicyFactoryConfig.ExpiryPolicyType.ACCESSED;
-import static com.hazelcast.config.ConfigCompatibilityChecker.checkEndpointConfigCompatible;
-import static com.hazelcast.config.ConfigXmlGenerator.MASK_FOR_SENSITIVE_DATA;
-import static com.hazelcast.instance.ProtocolType.MEMBER;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import com.hazelcast.collection.QueueStore;
 import com.hazelcast.collection.QueueStoreFactory;
@@ -80,6 +65,10 @@ import com.hazelcast.test.annotation.ParallelJVMTest;
 import com.hazelcast.test.annotation.QuickTest;
 import com.hazelcast.topic.TopicOverloadPolicy;
 import com.hazelcast.wan.WanPublisherState;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -95,9 +84,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.TimedExpiryPolicyFactoryConfig.ExpiryPolicyType.ACCESSED;
+import static com.hazelcast.config.ConfigCompatibilityChecker.checkEndpointConfigCompatible;
+import static com.hazelcast.config.ConfigXmlGenerator.MASK_FOR_SENSITIVE_DATA;
+import static com.hazelcast.instance.ProtocolType.MEMBER;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(HazelcastParallelClassRunner.class)
 @Category({QuickTest.class, ParallelJVMTest.class})
@@ -537,13 +538,19 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
                                         .setUsage(LoginModuleConfig.LoginModuleUsage.REQUIRED))))
                         .setUsernamePasswordIdentityConfig("username", "password"))
                 .setMemberRealmConfig("mr", memberRealm)
-                .setClientPermissionConfigs(new HashSet<>(singletonList(
+                .setClientPermissionConfigs(new HashSet<>(asList(
                         new PermissionConfig()
                                 .setActions(newHashSet("read", "remove"))
                                 .setEndpoints(newHashSet("127.0.0.1", "127.0.0.2"))
                                 .setType(PermissionConfig.PermissionType.ATOMIC_LONG)
                                 .setName("mycounter")
-                                .setPrincipal("devos"))));
+                                .setPrincipal("devos"),
+                        new PermissionConfig()
+                                .setActions(newHashSet("read", "create"))
+                                .setType(PermissionConfig.PermissionType.REPLICATEDMAP)
+                                .setName("rmap")
+                                .setPrincipal("monitor")
+                        )));
 
         cfg.setSecurityConfig(expectedConfig);
 
@@ -599,11 +606,15 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
                         .setRelaxFlagsCheck(TRUE)
                         .setUseNameWithoutRealm(TRUE)
                         .setSecurityRealm("jaasRealm")
+                        .setKeytabFile("/opt/test.keytab")
+                        .setPrincipal("testPrincipal")
                         .setLdapAuthenticationConfig(new LdapAuthenticationConfig()
                                 .setUrl("url")))
                 .setKerberosIdentityConfig(new KerberosIdentityConfig()
                         .setRealm("HAZELCAST.COM")
                         .setSecurityRealm("krb5Init")
+                        .setKeytabFile("/opt/test.keytab")
+                        .setPrincipal("testPrincipal")
                         .setServiceNamePrefix("hz/")
                         .setUseCanonicalHostname(TRUE)
                         .setSpn("spn@HAZELCAST.COM"));
@@ -662,6 +673,7 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
 
         SerializationConfig expectedConfig = new SerializationConfig()
                 .setAllowUnsafe(true)
+                .setAllowOverrideDefaultSerializers(true)
                 .setPortableVersion(2)
                 .setByteOrder(ByteOrder.BIG_ENDIAN)
                 .setUseNativeByteOrder(true)
@@ -679,6 +691,7 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
         SerializationConfig actualConfig = getNewConfigViaXMLGenerator(cfg).getSerializationConfig();
 
         assertEquals(expectedConfig.isAllowUnsafe(), actualConfig.isAllowUnsafe());
+        assertEquals(expectedConfig.isAllowOverrideDefaultSerializers(), actualConfig.isAllowOverrideDefaultSerializers());
         assertEquals(expectedConfig.getPortableVersion(), actualConfig.getPortableVersion());
         assertEquals(expectedConfig.getByteOrder(), actualConfig.getByteOrder());
         assertEquals(expectedConfig.isUseNativeByteOrder(), actualConfig.isUseNativeByteOrder());
@@ -1338,8 +1351,10 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
         expectedConfig.setMinBlockSize(50);
         expectedConfig.setPageSize(100);
         expectedConfig.setSize(new MemorySize(20, MemoryUnit.MEGABYTES));
-        expectedConfig.getPersistentMemoryConfig().addDirectoryConfig(new PersistentMemoryDirectoryConfig("/mnt/pmem0", 0));
-        expectedConfig.getPersistentMemoryConfig().addDirectoryConfig(new PersistentMemoryDirectoryConfig("/mnt/pmem1", 1));
+        PersistentMemoryConfig origPmemConfig = expectedConfig.getPersistentMemoryConfig();
+        origPmemConfig.setEnabled(true);
+        origPmemConfig.addDirectoryConfig(new PersistentMemoryDirectoryConfig("/mnt/pmem0", 0));
+        origPmemConfig.addDirectoryConfig(new PersistentMemoryDirectoryConfig("/mnt/pmem1", 1));
 
         Config config = new Config().setNativeMemoryConfig(expectedConfig);
         Config xmlConfig = getNewConfigViaXMLGenerator(config);
@@ -1352,13 +1367,46 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
         assertEquals(100, actualConfig.getPageSize());
         assertEquals(new MemorySize(20, MemoryUnit.MEGABYTES).getUnit(), actualConfig.getSize().getUnit());
         assertEquals(new MemorySize(20, MemoryUnit.MEGABYTES).getValue(), actualConfig.getSize().getValue());
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = actualConfig.getPersistentMemoryConfig().getDirectoryConfigs();
+
+        PersistentMemoryConfig pmemConfig = actualConfig.getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+        assertEquals(PersistentMemoryMode.MOUNTED, pmemConfig.getMode());
+
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig.getDirectoryConfigs();
         assertEquals(2, directoryConfigs.size());
         assertEquals("/mnt/pmem0", directoryConfigs.get(0).getDirectory());
         assertEquals(0, directoryConfigs.get(0).getNumaNode());
         assertEquals("/mnt/pmem1", directoryConfigs.get(1).getDirectory());
         assertEquals(1, directoryConfigs.get(1).getNumaNode());
         assertEquals(expectedConfig, actualConfig);
+    }
+
+    @Test
+    public void testNativeMemoryWithPersistentMemory_SystemMemoryMode() {
+        NativeMemoryConfig expectedConfig = new NativeMemoryConfig();
+        expectedConfig.setEnabled(true);
+        expectedConfig.setAllocatorType(NativeMemoryConfig.MemoryAllocatorType.STANDARD);
+        expectedConfig.setMetadataSpacePercentage(12.5f);
+        expectedConfig.setMinBlockSize(50);
+        expectedConfig.setPageSize(100);
+        expectedConfig.setSize(new MemorySize(20, MemoryUnit.MEGABYTES));
+        expectedConfig.getPersistentMemoryConfig().setMode(PersistentMemoryMode.SYSTEM_MEMORY);
+
+        Config config = new Config().setNativeMemoryConfig(expectedConfig);
+        Config xmlConfig = getNewConfigViaXMLGenerator(config);
+
+        NativeMemoryConfig actualConfig = xmlConfig.getNativeMemoryConfig();
+        assertTrue(actualConfig.isEnabled());
+        assertEquals(NativeMemoryConfig.MemoryAllocatorType.STANDARD, actualConfig.getAllocatorType());
+        assertEquals(12.5, actualConfig.getMetadataSpacePercentage(), 0.0001);
+        assertEquals(50, actualConfig.getMinBlockSize());
+        assertEquals(100, actualConfig.getPageSize());
+        assertEquals(new MemorySize(20, MemoryUnit.MEGABYTES).getUnit(), actualConfig.getSize().getUnit());
+        assertEquals(new MemorySize(20, MemoryUnit.MEGABYTES).getValue(), actualConfig.getSize().getValue());
+
+        PersistentMemoryConfig pmemConfig = actualConfig.getPersistentMemoryConfig();
+        assertFalse(pmemConfig.isEnabled());
+        assertEquals(PersistentMemoryMode.SYSTEM_MEMORY, pmemConfig.getMode());
     }
 
     @Test
@@ -1526,6 +1574,7 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
                 .setTimeToLiveSeconds(1000)
                 .setCacheDeserializedValues(CacheDeserializedValues.ALWAYS)
                 .setStatisticsEnabled(true)
+                .setPerEntryStatsEnabled(false)
                 .setReadBackupData(true)
                 .setBackupCount(2)
                 .setAsyncBackupCount(3)
@@ -1881,13 +1930,11 @@ public class ConfigXmlGeneratorTest extends HazelcastTestSupport {
         Config confiig = new Config();
 
         confiig.getSqlConfig().setExecutorPoolSize(10);
-        confiig.getSqlConfig().setOperationPoolSize(20);
         confiig.getSqlConfig().setStatementTimeoutMillis(30L);
 
         SqlConfig generatedConfig = getNewConfigViaXMLGenerator(confiig).getSqlConfig();
 
         assertEquals(confiig.getSqlConfig().getExecutorPoolSize(), generatedConfig.getExecutorPoolSize());
-        assertEquals(confiig.getSqlConfig().getOperationPoolSize(), generatedConfig.getOperationPoolSize());
         assertEquals(confiig.getSqlConfig().getStatementTimeoutMillis(), generatedConfig.getStatementTimeoutMillis());
     }
 

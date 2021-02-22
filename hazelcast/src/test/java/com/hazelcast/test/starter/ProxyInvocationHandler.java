@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import static com.hazelcast.test.starter.HazelcastStarterUtils.newCollectionFor;
 import static com.hazelcast.test.starter.HazelcastStarterUtils.rethrowGuardianException;
 import static com.hazelcast.test.starter.HazelcastStarterUtils.transferThrowable;
 
-class ProxyInvocationHandler implements InvocationHandler, Serializable {
+public class ProxyInvocationHandler implements InvocationHandler, Serializable {
 
     private final Object delegate;
 

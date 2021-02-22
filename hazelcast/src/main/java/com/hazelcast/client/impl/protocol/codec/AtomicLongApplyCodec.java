@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Applies a function on the value, the actual stored value will not change
  */
-@Generated("f7730cf6538688482a98ad2e1bb28288")
+@Generated("2fe9a315af841ec5169531de0d928346")
 public final class AtomicLongApplyCodec {
     //hex: 0x090100
     public static final int REQUEST_MESSAGE_TYPE = 590080;
@@ -104,8 +104,8 @@ public final class AtomicLongApplyCodec {
     }
 
     /**
-    * The result of the function application.
-    */
+     * The result of the function application.
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

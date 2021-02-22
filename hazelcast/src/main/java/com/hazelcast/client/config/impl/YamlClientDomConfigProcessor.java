@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,19 +80,16 @@ public class YamlClientDomConfigProcessor extends ClientDomConfigProcessor {
         for (Node child : childElements(node)) {
             final String name = cleanNodeName(child);
             if (matches("portable-version", name)) {
-                String value = getTextContent(child);
-                serializationConfig.setPortableVersion(getIntegerValue(name, value));
+                serializationConfig.setPortableVersion(getIntegerValue(name, getTextContent(child)));
             } else if (matches("check-class-def-errors", name)) {
-                String value = getTextContent(child);
-                serializationConfig.setCheckClassDefErrors(getBooleanValue(value));
+                serializationConfig.setCheckClassDefErrors(getBooleanValue(getTextContent(child)));
             } else if (matches("use-native-byte-order", name)) {
                 serializationConfig.setUseNativeByteOrder(getBooleanValue(getTextContent(child)));
             } else if (matches("byte-order", name)) {
-                String value = getTextContent(child);
                 ByteOrder byteOrder = null;
-                if (ByteOrder.BIG_ENDIAN.toString().equals(value)) {
+                if (ByteOrder.BIG_ENDIAN.toString().equals(getTextContent(child))) {
                     byteOrder = ByteOrder.BIG_ENDIAN;
-                } else if (ByteOrder.LITTLE_ENDIAN.toString().equals(value)) {
+                } else if (ByteOrder.LITTLE_ENDIAN.toString().equals(getTextContent(child))) {
                     byteOrder = ByteOrder.LITTLE_ENDIAN;
                 }
                 serializationConfig.setByteOrder(byteOrder != null ? byteOrder : ByteOrder.BIG_ENDIAN);
@@ -102,6 +99,8 @@ public class YamlClientDomConfigProcessor extends ClientDomConfigProcessor {
                 serializationConfig.setEnableSharedObject(getBooleanValue(getTextContent(child)));
             } else if (matches("allow-unsafe", name)) {
                 serializationConfig.setAllowUnsafe(getBooleanValue(getTextContent(child)));
+            } else if (matches("allow-override-default-serializers", name)) {
+                serializationConfig.setAllowOverrideDefaultSerializers(getBooleanValue(getTextContent(child)));
             } else if (matches("data-serializable-factories", name)) {
                 fillDataSerializableFactories(child, serializationConfig);
             } else if (matches("portable-factories", name)) {
@@ -320,21 +319,15 @@ public class YamlClientDomConfigProcessor extends ClientDomConfigProcessor {
     }
 
     @Override
-    protected void handlePersistentMemoryConfig(PersistentMemoryConfig persistentMemoryConfig, Node n) {
-        for (Node dirsNode : childElements(n)) {
-            String nodeName = cleanNodeName(dirsNode);
-            if (matches("directories", nodeName)) {
-                for (Node dirNode : childElements(dirsNode)) {
-                    String directory = getTextContent(getNamedItemNode(dirNode, "directory"));
-                    String numaNodeIdStr = getTextContent(getNamedItemNode(dirNode, "numa-node"));
-                    if (!StringUtil.isNullOrEmptyAfterTrim(numaNodeIdStr)) {
-                        int numaNodeId = getIntegerValue("numa-node", numaNodeIdStr);
-                        persistentMemoryConfig.addDirectoryConfig(new PersistentMemoryDirectoryConfig(directory, numaNodeId));
-                    } else {
-                        persistentMemoryConfig.addDirectoryConfig(new PersistentMemoryDirectoryConfig(directory));
-                    }
-                }
-            }
+    protected void handlePersistentMemoryDirectory(PersistentMemoryConfig persistentMemoryConfig, Node dirNode) {
+        String directory = getTextContent(getNamedItemNode(dirNode, "directory"));
+        String numaNodeIdStr = getTextContent(getNamedItemNode(dirNode, "numa-node"));
+        if (!StringUtil.isNullOrEmptyAfterTrim(numaNodeIdStr)) {
+            int numaNodeId = getIntegerValue("numa-node", numaNodeIdStr);
+            persistentMemoryConfig.addDirectoryConfig(new PersistentMemoryDirectoryConfig(directory, numaNodeId));
+        } else {
+            persistentMemoryConfig.addDirectoryConfig(new PersistentMemoryDirectoryConfig(directory));
         }
     }
+
 }

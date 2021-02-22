@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,10 @@ public interface QueryStateCallback {
     /**
      * Cancel the query with error.
      *
-     * @param e error that caused the cancel, or {@code null} if cancellation is trigerred by the user request
+     * @param e error that caused the cancel, or {@code null} if cancellation is triggered by the user request
+     * @param local whether the cancellation should be performed locally, without notification of other participants
      */
-    void cancel(Exception e);
+    void cancel(Exception e, boolean local);
 
     /**
      * Check whether the query is cancelled. If the query is not cancelled, the method returns with no side effects.

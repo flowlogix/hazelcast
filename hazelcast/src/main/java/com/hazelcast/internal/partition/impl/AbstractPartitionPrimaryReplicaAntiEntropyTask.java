@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,12 @@ public abstract class AbstractPartitionPrimaryReplicaAntiEntropyTask
 
         PartitionReplicaManager replicaManager = partitionService.getReplicaManager();
         replicaManager.retainNamespaces(partitionId, namespaces);
+
+        ILogger logger = nodeEngine.getLogger(getClass());
+        if (logger.isFinestEnabled()) {
+            logger.finest("Retained namespaces for partitionId=" + partitionId + ". Service namespaces="
+                    + namespaces + ", retained namespaces=" + replicaManager.getNamespaces(partitionId));
+        }
         return replicaManager.getNamespaces(partitionId);
     }
 
@@ -94,10 +100,7 @@ public abstract class AbstractPartitionPrimaryReplicaAntiEntropyTask
         for (ServiceNamespace ns : namespaces) {
             long[] versions = replicaManager.getPartitionReplicaVersions(partitionId, ns);
             long currentReplicaVersion = versions[replicaIndex - 1];
-
-            if (currentReplicaVersion > 0) {
-                versionMap.put(ns, currentReplicaVersion);
-            }
+            versionMap.put(ns, currentReplicaVersion);
         }
 
         boolean hasCallback = (callback != null);
@@ -105,6 +108,12 @@ public abstract class AbstractPartitionPrimaryReplicaAntiEntropyTask
         PartitionBackupReplicaAntiEntropyOperation op = new PartitionBackupReplicaAntiEntropyOperation(versionMap, hasCallback);
         op.setPartitionId(partitionId).setReplicaIndex(replicaIndex).setServiceName(SERVICE_NAME);
         OperationService operationService = nodeEngine.getOperationService();
+
+        ILogger logger = nodeEngine.getLogger(getClass());
+        if (logger.isFinestEnabled()) {
+            logger.finest("Sending anti-entropy operation to " + target + " for partitionId=" + partitionId
+                    + ", replicaIndex=" + replicaIndex + ", namespaces=" + versionMap);
+        }
 
         if (hasCallback) {
             operationService.createInvocationBuilder(SERVICE_NAME, op, target.address())

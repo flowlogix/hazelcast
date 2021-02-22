@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -586,7 +586,7 @@ public class HazelcastConfigBeanDefinitionParser extends AbstractHazelcastBeanDe
             BeanDefinitionBuilder mergePolicyConfigBuilder = createBeanBuilder(MergePolicyConfig.class);
             AbstractBeanDefinition beanDefinition = mergePolicyConfigBuilder.getBeanDefinition();
             fillAttributeValues(node, mergePolicyConfigBuilder);
-            mergePolicyConfigBuilder.addPropertyValue("policy", getTextContent(node).trim());
+            mergePolicyConfigBuilder.addPropertyValue("policy", getTextContent(node));
             builder.addPropertyValue("mergePolicyConfig", beanDefinition);
         }
 
@@ -2034,7 +2034,7 @@ public class HazelcastConfigBeanDefinitionParser extends AbstractHazelcastBeanDe
         // construct the endpoint qualifier corresponding to an
         // endpoint-config or server-socket-endpoint-config node
         private EndpointQualifier createEndpointQualifier(ProtocolType type, Node node) {
-            return EndpointQualifier.resolve(type, getAttribute(node, "name"));
+            return EndpointQualifier.resolveForConfig(type, getAttribute(node, "name"));
         }
 
         private void handleInstanceTracking(Node node) {
@@ -2085,15 +2085,13 @@ public class HazelcastConfigBeanDefinitionParser extends AbstractHazelcastBeanDe
         private void handleSql(Node node) {
             BeanDefinitionBuilder sqlConfigBuilder = createBeanBuilder(SqlConfig.class);
 
-            fillValues(node, sqlConfigBuilder, "executorPoolSize", "operationPoolSize", "timeoutMillis");
+            fillValues(node, sqlConfigBuilder, "executorPoolSize", "timeoutMillis");
 
             for (Node child : childElements(node)) {
                 String nodeName = cleanNodeName(child);
                 String value = getTextContent(child).trim();
                 if ("executor-pool-size".equals(nodeName)) {
                     sqlConfigBuilder.addPropertyValue("executorPoolSize", getIntegerValue("executor-pool-size", value));
-                } else if ("operation-pool-size".equals(nodeName)) {
-                    sqlConfigBuilder.addPropertyValue("operationPoolSize", getIntegerValue("operation-pool-size", value));
                 } else if ("statement-timeout-millis".equals(nodeName)) {
                     sqlConfigBuilder.addPropertyValue(
                         "statementTimeoutMillis",

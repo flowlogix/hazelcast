@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Initiates an orderly shutdown in which previously submitted tasks are executed, but no new tasks will be accepted.
  * Invocation has no additional effect if already shut down.
  */
-@Generated("09b223950e04c5750b977fc8d3816e8e")
+@Generated("e7d216c620d46ce3a557fd14e50f70c8")
 public final class ExecutorServiceShutdownCodec {
     //hex: 0x080100
     public static final int REQUEST_MESSAGE_TYPE = 524544;
@@ -48,12 +48,6 @@ public final class ExecutorServiceShutdownCodec {
 
     private ExecutorServiceShutdownCodec() {
     }
-
-    /**
-     * Name of the executor.
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -67,6 +61,9 @@ public final class ExecutorServiceShutdownCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the executor.
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

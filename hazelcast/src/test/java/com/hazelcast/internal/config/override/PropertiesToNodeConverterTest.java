@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,12 +41,12 @@ public class PropertiesToNodeConverterTest {
         m.put("foo.bar3.bar4", "4");
         ConfigNode configNode = PropertiesToNodeConverter.propsToNode(m);
 
-        assertNull(configNode.getValue().orElse(null));
+        assertNull(configNode.getValue());
         assertEquals("foo", configNode.getName());
         assertEquals(3, configNode.getChildren().size());
-        assertEquals("1", configNode.getChildren().get("bar1").getValue().get());
-        assertEquals("2", configNode.getChildren().get("bar2").getValue().get());
-        assertEquals("4", configNode.getChildren().get("bar3").getChildren().get("bar4").getValue().get());
+        assertEquals("1", configNode.getChildren().get("bar1").getValue());
+        assertEquals("2", configNode.getChildren().get("bar2").getValue());
+        assertEquals("4", configNode.getChildren().get("bar3").getChildren().get("bar4").getValue());
     }
 
     @Test(expected = InvalidConfigurationException.class)

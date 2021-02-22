@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Initializes the ISemaphore instance with the given permit number, if not
  * initialized before.
  */
-@Generated("64597030b7c2e4e693cb7686fb862005")
+@Generated("351fd3a381b54b621e06af03a3b57eba")
 public final class SemaphoreInitCodec {
     //hex: 0x0C0100
     public static final int REQUEST_MESSAGE_TYPE = 786688;
@@ -105,8 +105,8 @@ public final class SemaphoreInitCodec {
     }
 
     /**
-    * true if the ISemaphore is initialized with this call
-    */
+     * true if the ISemaphore is initialized with this call
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

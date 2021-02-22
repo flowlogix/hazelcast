@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the number of entries in this map.
  */
-@Generated("92c03c1318b227b53f7ef7dccf0382b3")
+@Generated("2d551a62e174c400140bc5ffb6e1620b")
 public final class TransactionalMapSizeCodec {
     //hex: 0x0E0400
     public static final int REQUEST_MESSAGE_TYPE = 918528;
@@ -105,8 +105,8 @@ public final class TransactionalMapSizeCodec {
     }
 
     /**
-    * The number of entries in this map.
-    */
+     * The number of entries in this map.
+     */
     public static int decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

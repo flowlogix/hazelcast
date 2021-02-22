@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * This method returns a clone of original mapping, modifying the returned value does not change the actual value
  * in the map. One should put modified value back to make changes visible to all nodes.
  */
-@Generated("1c3db8bd0b0e822dd69a98d66aa7b4f6")
+@Generated("8a5ed2ee6fdf63ac36e441e3a86c27b1")
 public final class MapGetEntryViewCodec {
     //hex: 0x011D00
     public static final int REQUEST_MESSAGE_TYPE = 72960;
@@ -97,10 +97,12 @@ public final class MapGetEntryViewCodec {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
     public static class ResponseParameters {
+
         /**
          * Entry view of the specified key.
          */
         public @Nullable com.hazelcast.map.impl.SimpleEntryView<com.hazelcast.internal.serialization.Data, com.hazelcast.internal.serialization.Data> response;
+
         /**
          * Last set max idle in millis.
          */

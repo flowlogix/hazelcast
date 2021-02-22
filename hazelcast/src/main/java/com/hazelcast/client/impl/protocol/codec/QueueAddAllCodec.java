@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * (This implies that the behavior of this call is undefined if the specified collection is this collection,
  * and this collection is nonempty.)
  */
-@Generated("2950ff077cd645adeb1e941be94b1c8c")
+@Generated("cf5e432166757711681499c191ba78f2")
 public final class QueueAddAllCodec {
     //hex: 0x031000
     public static final int REQUEST_MESSAGE_TYPE = 200704;
@@ -100,8 +100,8 @@ public final class QueueAddAllCodec {
     }
 
     /**
-    * <tt>true</tt> if this collection changed as a result of the call
-    */
+     * <tt>true</tt> if this collection changed as a result of the call
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

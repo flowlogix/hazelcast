@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * element, including null, and throw an exception, as described in the specification for Collection
  * Individual set implementations should clearly document any restrictions on the elements that they may contain.
  */
-@Generated("9c85900eecfd45aea25c8af9fbe507fc")
+@Generated("429b859f90fa6055f6e55e53062fcef1")
 public final class SetAddCodec {
     //hex: 0x060400
     public static final int REQUEST_MESSAGE_TYPE = 394240;
@@ -102,9 +102,9 @@ public final class SetAddCodec {
     }
 
     /**
-    * True if this set did not already contain the specified
-    * element and the element is added, returns false otherwise.
-    */
+     * True if this set did not already contain the specified
+     * element and the element is added, returns false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Inserts the specified element into this queue, waiting up to the specified wait time if necessary for space to
  * become available.
  */
-@Generated("7d972d4d34010a5b7336b8b76e5d551e")
+@Generated("811bbbb0d4b5479b84b48712d2802e1c")
 public final class QueueOfferCodec {
     //hex: 0x030100
     public static final int REQUEST_MESSAGE_TYPE = 196864;
@@ -105,8 +105,8 @@ public final class QueueOfferCodec {
     }
 
     /**
-    * <tt>True</tt> if the element was added to this queue, else <tt>false</tt>
-    */
+     * <tt>True</tt> if the element was added to this queue, else <tt>false</tt>
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

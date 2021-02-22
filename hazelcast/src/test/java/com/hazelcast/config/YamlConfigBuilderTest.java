@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,8 @@ import static com.hazelcast.config.EvictionPolicy.LRU;
 import static com.hazelcast.config.MaxSizePolicy.ENTRY_COUNT;
 import static com.hazelcast.config.PermissionConfig.PermissionType.CACHE;
 import static com.hazelcast.config.PermissionConfig.PermissionType.CONFIG;
+import static com.hazelcast.config.PersistentMemoryMode.MOUNTED;
+import static com.hazelcast.config.PersistentMemoryMode.SYSTEM_MEMORY;
 import static com.hazelcast.config.WanQueueFullBehavior.DISCARD_AFTER_MUTATION;
 import static com.hazelcast.config.WanQueueFullBehavior.THROW_EXCEPTION;
 import static java.io.File.createTempFile;
@@ -204,12 +206,16 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
                 + "            relax-flags-check: true\n"
                 + "            use-name-without-realm: true\n"
                 + "            security-realm: krb5Acceptor\n"
+                + "            principal: jduke@HAZELCAST.COM\n"
+                + "            keytab-file: /opt/jduke.keytab\n"
                 + "            ldap:\n"
                 + "              url: ldap://127.0.0.1\n"
                 + "        identity:\n"
                 + "          kerberos:\n"
                 + "            realm: HAZELCAST.COM\n"
                 + "            security-realm: krb5Initializer\n"
+                + "            principal: jduke@HAZELCAST.COM\n"
+                + "            keytab-file: /opt/jduke.keytab\n"
                 + "            use-canonical-hostname: true\n"
                 + "    client-permission-policy:\n"
                 + "      class-name: MyPermissionPolicy\n"
@@ -270,6 +276,8 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
         assertNotNull(kerbIdentity);
         assertEquals("HAZELCAST.COM", kerbIdentity.getRealm());
         assertEquals("krb5Initializer", kerbIdentity.getSecurityRealm());
+        assertEquals("jduke@HAZELCAST.COM", kerbIdentity.getPrincipal());
+        assertEquals("/opt/jduke.keytab", kerbIdentity.getKeytabFile());
         assertTrue(kerbIdentity.getUseCanonicalHostname());
 
         KerberosAuthenticationConfig kerbAuthentication = kerberosRealm.getKerberosAuthenticationConfig();
@@ -278,6 +286,8 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
         assertEquals(Boolean.FALSE, kerbAuthentication.getSkipRole());
         assertNull(kerbAuthentication.getSkipIdentity());
         assertEquals("krb5Acceptor", kerbAuthentication.getSecurityRealm());
+        assertEquals("jduke@HAZELCAST.COM", kerbAuthentication.getPrincipal());
+        assertEquals("/opt/jduke.keytab", kerbAuthentication.getKeytabFile());
         assertTrue(kerbAuthentication.getUseNameWithoutRealm());
 
         LdapAuthenticationConfig kerbLdapAuthentication = kerbAuthentication.getLdapAuthenticationConfig();
@@ -901,6 +911,34 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
     }
 
     @Override
+    public void testMapConfig_statisticsEnable() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  map:\n"
+                + "    mymap:\n"
+                + "      statistics-enabled: false";
+
+        Config config = buildConfig(yaml);
+        MapConfig mapConfig = config.getMapConfig("mymap");
+
+        assertFalse(mapConfig.isStatisticsEnabled());
+    }
+
+    @Override
+    public void testMapConfig_perEntryStatsEnabled() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  map:\n"
+                + "    mymap:\n"
+                + "      per-entry-stats-enabled: true";
+
+        Config config = buildConfig(yaml);
+        MapConfig mapConfig = config.getMapConfig("mymap");
+
+        assertTrue(mapConfig.isStatisticsEnabled());
+    }
+
+    @Override
     @Test
     public void testMapConfig_metadataPolicy_defaultValue() {
         String yaml = ""
@@ -1019,6 +1057,56 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
 
         assertTrue(mapStoreConfig.isEnabled());
         assertEquals(MapStoreConfig.InitialLoadMode.EAGER, mapStoreConfig.getInitialLoadMode());
+    }
+
+    @Override
+    @Test
+    public void testMapStoreEnabled() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  map:\n"
+                + "    mymap:\n"
+                + "      map-store:\n"
+                + "        enabled: true\n"
+                + "        initial-mode: EAGER\n";
+
+        Config config = buildConfig(yaml);
+        MapStoreConfig mapStoreConfig = config.getMapConfig("mymap").getMapStoreConfig();
+
+        assertTrue(mapStoreConfig.isEnabled());
+    }
+
+    @Override
+    @Test
+    public void testMapStoreEnabledIfNotDisabled() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  map:\n"
+                + "    mymap:\n"
+                + "      map-store:\n"
+                + "        initial-mode: EAGER\n";
+
+        Config config = buildConfig(yaml);
+        MapStoreConfig mapStoreConfig = config.getMapConfig("mymap").getMapStoreConfig();
+
+        assertTrue(mapStoreConfig.isEnabled());
+    }
+
+    @Override
+    @Test
+    public void testMapStoreDisabled() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  map:\n"
+                + "    mymap:\n"
+                + "      map-store:\n"
+                + "        enabled: false\n"
+                + "        initial-mode: EAGER\n";
+
+        Config config = buildConfig(yaml);
+        MapStoreConfig mapStoreConfig = config.getMapConfig("mymap").getMapStoreConfig();
+
+        assertFalse(mapStoreConfig.isEnabled());
     }
 
     @Override
@@ -1163,6 +1251,36 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
         PartitionGroupConfig partitionGroupConfig = config.getPartitionGroupConfig();
         assertTrue(partitionGroupConfig.isEnabled());
         assertEquals(PartitionGroupConfig.MemberGroupType.ZONE_AWARE, partitionGroupConfig.getGroupType());
+    }
+
+    @Override
+    @Test
+    public void testPartitionGroupNodeAware() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  partition-group:\n"
+                + "    enabled: true\n"
+                + "    group-type: NODE_AWARE\n";
+
+        Config config = buildConfig(yaml);
+        PartitionGroupConfig partitionGroupConfig = config.getPartitionGroupConfig();
+        assertTrue(partitionGroupConfig.isEnabled());
+        assertEquals(PartitionGroupConfig.MemberGroupType.NODE_AWARE, partitionGroupConfig.getGroupType());
+    }
+
+    @Override
+    @Test
+    public void testPartitionGroupPlacementAware() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  partition-group:\n"
+                + "    enabled: true\n"
+                + "    group-type: PLACEMENT_AWARE\n";
+
+        Config config = buildConfig(yaml);
+        PartitionGroupConfig partitionGroupConfig = config.getPartitionGroupConfig();
+        assertTrue(partitionGroupConfig.isEnabled());
+        assertEquals(PartitionGroupConfig.MemberGroupType.PLACEMENT_AWARE, partitionGroupConfig.getGroupType());
     }
 
     @Override
@@ -2704,6 +2822,23 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
     }
 
     @Override
+    public void testEmptyUserCodeDeployment() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  user-code-deployment:\n"
+                + "    enabled: true\n";
+
+        Config config = buildConfig(yaml);
+        UserCodeDeploymentConfig userCodeDeploymentConfig = config.getUserCodeDeploymentConfig();
+        assertTrue(userCodeDeploymentConfig.isEnabled());
+        assertEquals(UserCodeDeploymentConfig.ClassCacheMode.ETERNAL, userCodeDeploymentConfig.getClassCacheMode());
+        assertEquals(UserCodeDeploymentConfig.ProviderMode.LOCAL_AND_CACHED_CLASSES, userCodeDeploymentConfig.getProviderMode());
+        assertNull(userCodeDeploymentConfig.getBlacklistedPrefixes());
+        assertNull(userCodeDeploymentConfig.getWhitelistedPrefixes());
+        assertNull(userCodeDeploymentConfig.getProviderFilter());
+    }
+
+    @Override
     @Test
     public void testCRDTReplicationConfig() {
         final String yaml = ""
@@ -2775,6 +2910,21 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
         assertTrue(whiteList.getPrefixes().contains("["));
         assertTrue(blackList.getClasses().contains("com.acme.app.BeanComparator"));
     }
+
+    @Override
+    @Test
+    public void testAllowOverrideDefaultSerializers() {
+        final String yaml = ""
+          + "hazelcast:\n"
+          + "  serialization:\n"
+          + "    allow-override-default-serializers: true\n";
+
+        final Config config = new InMemoryYamlConfig(yaml);
+        final boolean isAllowOverrideDefaultSerializers
+          = config.getSerializationConfig().isAllowOverrideDefaultSerializers();
+        assertTrue(isAllowOverrideDefaultSerializers);
+    }
+
 
     @Override
     @Test
@@ -3406,12 +3556,10 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
             + "hazelcast:\n"
             + "  sql:\n"
             + "    executor-pool-size: 10\n"
-            + "    operation-pool-size: 20\n"
             + "    statement-timeout-millis: 30\n";
         Config config = buildConfig(yaml);
         SqlConfig sqlConfig = config.getSqlConfig();
         assertEquals(10, sqlConfig.getExecutorPoolSize());
-        assertEquals(20, sqlConfig.getOperationPoolSize());
         assertEquals(30L, sqlConfig.getStatementTimeoutMillis());
     }
 
@@ -3443,9 +3591,12 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
 
         Config yamlConfig = new InMemoryYamlConfig(yaml);
 
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = yamlConfig.getNativeMemoryConfig()
-                                                                           .getPersistentMemoryConfig()
+        PersistentMemoryConfig pmemConfig = yamlConfig.getNativeMemoryConfig()
+                .getPersistentMemoryConfig();
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig
                                                                            .getDirectoryConfigs();
+        assertFalse(pmemConfig.isEnabled());
+        assertEquals(MOUNTED, pmemConfig.getMode());
         assertEquals(2, directoryConfigs.size());
         PersistentMemoryDirectoryConfig dir0Config = directoryConfigs.get(0);
         PersistentMemoryDirectoryConfig dir1Config = directoryConfigs.get(1);
@@ -3464,9 +3615,10 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
                 + "    persistent-memory-directory: /mnt/pmem0";
 
         Config config = buildConfig(yaml);
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = config.getNativeMemoryConfig()
-                                                                       .getPersistentMemoryConfig()
-                                                                       .getDirectoryConfigs();
+        PersistentMemoryConfig pmemConfig = config.getNativeMemoryConfig().getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig.getDirectoryConfigs();
         assertEquals(1, directoryConfigs.size());
         PersistentMemoryDirectoryConfig dir0Config = directoryConfigs.get(0);
         assertEquals("/mnt/pmem0", dir0Config.getDirectory());
@@ -3534,9 +3686,11 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
 
         Config config = buildConfig(yaml);
 
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = config.getNativeMemoryConfig()
-                                                                       .getPersistentMemoryConfig()
-                                                                       .getDirectoryConfigs();
+        PersistentMemoryConfig pmemConfig = config.getNativeMemoryConfig().getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+        assertEquals(MOUNTED, pmemConfig.getMode());
+
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig.getDirectoryConfigs();
         assertEquals(3, directoryConfigs.size());
         PersistentMemoryDirectoryConfig dir0Config = directoryConfigs.get(0);
         PersistentMemoryDirectoryConfig dir1Config = directoryConfigs.get(1);
@@ -3547,6 +3701,48 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
         assertFalse(dir1Config.isNumaNodeSet());
         assertEquals("/mnt/pmem1", dir2Config.getDirectory());
         assertFalse(dir2Config.isNumaNodeSet());
+    }
+
+    @Override
+    @Test
+    public void testPersistentMemoryConfiguration_SystemMemoryMode() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  native-memory:\n"
+                + "    persistent-memory:\n"
+                + "      enabled: true\n"
+                + "      mode: SYSTEM_MEMORY\n";
+
+        Config config = buildConfig(yaml);
+        PersistentMemoryConfig pmemConfig = config.getNativeMemoryConfig().getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+        assertEquals(SYSTEM_MEMORY, pmemConfig.getMode());
+    }
+
+    @Override
+    @Test(expected = InvalidConfigurationException.class)
+    public void testPersistentMemoryConfiguration_NotExistingModeThrows() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  native-memory:\n"
+                + "    persistent-memory:\n"
+                + "      mode: NOT_EXISTING_MODE\n";
+
+        buildConfig(yaml);
+    }
+
+    @Override
+    @Test(expected = InvalidConfigurationException.class)
+    public void testPersistentMemoryDirectoryConfiguration_SystemMemoryModeThrows() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  native-memory:\n"
+                + "    persistent-memory:\n"
+                + "      mode: SYSTEM_MEMORY\n"
+                + "      directories:\n"
+                + "        - directory: /mnt/pmem0\n";
+
+        buildConfig(yaml);
     }
 
     @Override
@@ -3644,6 +3840,24 @@ public class YamlConfigBuilderTest extends AbstractConfigBuilderTest {
                 + "      host: syslogserver.acme.com\n"
                 + "      port: 514\n"
                 + "      type: tcp\n";
+        return new InMemoryYamlConfig(yaml);
+    }
+
+    @Override
+    protected Config buildMapWildcardConfig() {
+        String yaml = ""
+                + "hazelcast:\n"
+                + "  map:\n"
+                + "    map*:\n"
+                + "      attributes:\n"
+                + "        name:\n"
+                + "          extractor-class-name: usercodedeployment.CapitalizingFirstNameExtractor\n"
+                + "    mapBackup2*:\n"
+                + "      backup-count: 2\n"
+                + "      attributes:\n"
+                + "        name:\n"
+                + "          extractor-class-name: usercodedeployment.CapitalizingFirstNameExtractor\n";
+
         return new InMemoryYamlConfig(yaml);
     }
 }

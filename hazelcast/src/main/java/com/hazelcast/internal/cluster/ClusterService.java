@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,8 +160,8 @@ public interface ClusterService extends CoreService, Cluster {
      * The join algorithm assigns different member list join versions to each member in the cluster.
      * If two members join at the same time, they will appear on different version of member list.
      * <p>
-     * The uniqueness guarantee of member list join versions is provided except the following scenario:
-     * when there is a split-brain issue, if a new node joins to any sub-cluster,
+     * The uniqueness guarantee of member list join versions is provided except for the following
+     * scenario: when there is a split-brain issue, if a new node joins to any sub-cluster,
      * it can get a duplicate member list join version, i.e., its member list join version
      * can be assigned to another node in the other sub-cluster(s).
      * <p>

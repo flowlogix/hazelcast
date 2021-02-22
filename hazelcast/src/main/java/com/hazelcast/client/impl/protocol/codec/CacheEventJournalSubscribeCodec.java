@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * This includes retrieving the event journal sequences of the
  * oldest and newest event in the journal.
  */
-@Generated("09e28fcabc5d4217510c68e6530b04e9")
+@Generated("0a6fe7b7d90eef7db732151b6872726a")
 public final class CacheEventJournalSubscribeCodec {
     //hex: 0x131F00
     public static final int REQUEST_MESSAGE_TYPE = 1253120;
@@ -52,12 +52,6 @@ public final class CacheEventJournalSubscribeCodec {
     private CacheEventJournalSubscribeCodec() {
     }
 
-    /**
-     * name of the cache
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
-
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
         clientMessage.setRetryable(true);
@@ -70,6 +64,9 @@ public final class CacheEventJournalSubscribeCodec {
         return clientMessage;
     }
 
+    /**
+     * name of the cache
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -79,10 +76,12 @@ public final class CacheEventJournalSubscribeCodec {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
     public static class ResponseParameters {
+
         /**
          * Sequence id of the oldest event in the event journal.
          */
         public long oldestSequence;
+
         /**
          * Sequence id of the newest event in the event journal.
          */

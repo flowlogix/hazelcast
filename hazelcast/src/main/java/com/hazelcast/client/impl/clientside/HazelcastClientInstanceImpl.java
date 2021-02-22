@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.hazelcast.client.impl.client.DistributedObjectInfo;
 import com.hazelcast.client.impl.connection.AddressProvider;
 import com.hazelcast.client.impl.connection.ClientConnectionManager;
 import com.hazelcast.client.impl.connection.tcp.TcpClientConnectionManager;
+import com.hazelcast.client.impl.protocol.ClientExceptionFactory;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.ClientGetDistributedObjectsCodec;
 import com.hazelcast.client.impl.proxy.ClientClusterProxy;
@@ -106,6 +107,7 @@ import com.hazelcast.map.IMap;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.multimap.MultiMap;
 import com.hazelcast.multimap.impl.MultiMapService;
+import com.hazelcast.partition.MigrationListener;
 import com.hazelcast.partition.PartitionLostListener;
 import com.hazelcast.partition.PartitionService;
 import com.hazelcast.replicatedmap.ReplicatedMap;
@@ -196,8 +198,8 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
     private final ClusterDiscoveryService clusterDiscoveryService;
     private final ClientProxySessionManager proxySessionManager;
     private final CPSubsystemImpl cpSubsystem;
-    private final ConcurrentLinkedQueue<Disposable> onClusterChangeDisposables = new ConcurrentLinkedQueue();
-    private final ConcurrentLinkedQueue<Disposable> onClientShutdownDisposables = new ConcurrentLinkedQueue();
+    private final ConcurrentLinkedQueue<Disposable> onClusterChangeDisposables = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Disposable> onClientShutdownDisposables = new ConcurrentLinkedQueue<>();
     private final SqlClientService sqlService;
 
     public HazelcastClientInstanceImpl(String instanceName, ClientConfig clientConfig,
@@ -390,11 +392,11 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
             metricsRegistry.provideMetrics(listenerService);
 
             ClientConnectionStrategyConfig connectionStrategyConfig = config.getConnectionStrategyConfig();
-            if (!connectionStrategyConfig.isAsyncStart()) {
-                // The client needs to open connections to all members before any services requiring internal listeners start
+            boolean asyncStart = connectionStrategyConfig.isAsyncStart();
+            if (!asyncStart) {
                 waitForInitialMembershipEvents();
-                connectionManager.connectToAllClusterMembers();
             }
+            connectionManager.tryConnectToAllClusterMembers(!asyncStart);
 
             listenerService.start();
             proxyManager.init(config, clientContext);
@@ -793,7 +795,7 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
 
     private ClientExceptionFactory initClientExceptionFactory() {
         boolean jCacheAvailable = JCacheDetector.isJCacheAvailable(getClientConfig().getClassLoader());
-        return new ClientExceptionFactory(jCacheAvailable);
+        return new ClientExceptionFactory(jCacheAvailable, config.getClassLoader());
     }
 
     public ClientExceptionFactory getClientExceptionFactory() {
@@ -824,7 +826,7 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
 
     public void onClusterChange() {
         ILogger logger = loggingService.getLogger(HazelcastInstance.class);
-        logger.info("Resetting local state of the client, because of a cluster change ");
+        logger.info("Resetting local state of the client, because of a cluster change.");
 
         dispose(onClusterChangeDisposables);
         //clear the member lists
@@ -839,7 +841,7 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
 
     public void onClusterRestart() {
         ILogger logger = loggingService.getLogger(HazelcastInstance.class);
-        logger.info("Clearing local state of the client, because of a cluster restart");
+        logger.info("Clearing local state of the client, because of a cluster restart.");
 
         dispose(onClusterChangeDisposables);
         //clear the member list version
@@ -863,8 +865,7 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
 
     private Collection<EventListener> instantiateConfiguredListenerObjects() {
         return config.getListenerConfigs().stream().map((listenerConfig) -> {
-            EventListener implementation = listenerConfig.getImplementation();
-            EventListener listener = implementation;
+            EventListener listener = listenerConfig.getImplementation();
             if (listener == null) {
                 try {
                     listener = ClassLoaderUtil.newInstance(config.getClassLoader(), listenerConfig.getClassName());
@@ -879,6 +880,9 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
     private void addClientConfigAddedListeners(Collection<EventListener> configuredListeners) {
         configuredListeners.stream().filter(listener -> listener instanceof DistributedObjectListener)
                 .forEach(listener -> proxyManager.addDistributedObjectListener((DistributedObjectListener) listener));
+
+        configuredListeners.stream().filter(listener -> listener instanceof MigrationListener)
+                .forEach(listener -> getPartitionService().addMigrationListener((MigrationListener) listener));
 
         configuredListeners.stream().filter(listener -> listener instanceof PartitionLostListener)
                 .forEach(listener -> getPartitionService().addPartitionLostListener((PartitionLostListener) listener));

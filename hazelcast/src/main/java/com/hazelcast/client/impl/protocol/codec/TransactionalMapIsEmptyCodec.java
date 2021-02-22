@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns true if this map contains no entries.
  */
-@Generated("828ecd7c7fdb8add4fa92cc3b0839565")
+@Generated("90c40542c07de6b2f35db47057e0a1b4")
 public final class TransactionalMapIsEmptyCodec {
     //hex: 0x0E0500
     public static final int REQUEST_MESSAGE_TYPE = 918784;
@@ -105,8 +105,8 @@ public final class TransactionalMapIsEmptyCodec {
     }
 
     /**
-    * <tt>true</tt> if this map contains no entries.
-    */
+     * <tt>true</tt> if this map contains no entries.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

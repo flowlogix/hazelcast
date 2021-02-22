@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+  ~ Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.hazelcast.com/schema/spring
-        http://www.hazelcast.com/schema/spring/hazelcast-spring-4.1.xsd">
+        http://www.hazelcast.com/schema/spring/hazelcast-spring-4.2.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
           p:systemPropertiesModeName="SYSTEM_PROPERTIES_MODE_OVERRIDE">
@@ -482,6 +482,8 @@
                 <hz:eviction max-size-policy="USED_NATIVE_MEMORY_PERCENTAGE"/>
             </hz:map>
 
+            <hz:map name="map-with-per-entry-stats-enabled" per-entry-stats-enabled="true"/>
+
             <hz:map name="mapWithPartitionLostListener">
                 <hz:partition-lost-listeners>
                     <hz:partition-lost-listener class-name="DummyMapPartitionLostListenerImpl"/>
@@ -569,6 +571,7 @@
             </hz:listeners>
 
             <hz:serialization allow-unsafe="false"
+                              allow-override-default-serializers="true"
                               byte-order="BIG_ENDIAN"
                               check-class-def-errors="false"
                               enable-compression="false"
@@ -693,6 +696,21 @@
                                 <hz:service-name-prefix>hz/</hz:service-name-prefix>
                                 <hz:use-canonical-hostname>true</hz:use-canonical-hostname>
                                 <hz:spn>hz/127.0.0.1@HAZELCAST.COM</hz:spn>
+                            </hz:kerberos>
+                        </hz:identity>
+                    </hz:realm>
+                    <hz:realm name="simpleKerberosRealm">
+                        <hz:authentication>
+                            <hz:kerberos>
+                                <hz:principal>hz/127.0.0.1@HAZELCAST.COM</hz:principal>
+                                <hz:keytab-file>/opt/localhost.keytab</hz:keytab-file>
+                            </hz:kerberos>
+                        </hz:authentication>
+                        <hz:identity>
+                            <hz:kerberos>
+                                <hz:realm>HAZELCAST.COM</hz:realm>
+                                <hz:principal>hz/127.0.0.1@HAZELCAST.COM</hz:principal>
+                                <hz:keytab-file>/opt/localhost.keytab</hz:keytab-file>
                             </hz:kerberos>
                         </hz:identity>
                     </hz:realm>
@@ -852,7 +870,11 @@
                             <hz:action>all</hz:action>
                         </hz:actions>
                     </hz:reliable-topic-permission>
-                    <hz:sql-permission principal="dev"/>
+                    <hz:replicatedmap-permission name="*">
+                        <hz:actions>
+                            <hz:action>all</hz:action>
+                        </hz:actions>
+                    </hz:replicatedmap-permission>
                 </hz:client-permissions>
                 <hz:client-block-unmapped-actions>false</hz:client-block-unmapped-actions>
             </hz:security>
@@ -982,7 +1004,6 @@
 
             <hz:sql>
                 <hz:executor-pool-size>10</hz:executor-pool-size>
-                <hz:operation-pool-size>20</hz:operation-pool-size>
                 <hz:statement-timeout-millis>30</hz:statement-timeout-millis>
             </hz:sql>
 

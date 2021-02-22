@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.hazelcast.client.impl.ClientEndpointImpl;
 import com.hazelcast.client.impl.ClientEndpointManager;
 import com.hazelcast.client.impl.ClientEngine;
 import com.hazelcast.client.impl.client.SecureRequest;
-import com.hazelcast.client.impl.protocol.ClientExceptions;
+import com.hazelcast.client.impl.protocol.ClientExceptionFactory;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.cluster.Address;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
@@ -270,8 +270,8 @@ public abstract class AbstractMessageTask<P> implements MessageTask, SecureReque
         sendClientMessage(message);
     }
 
-    private ClientMessage encodeException(Throwable throwable) {
-        ClientExceptions exceptionFactory = clientEngine.getClientExceptions();
+    protected ClientMessage encodeException(Throwable throwable) {
+        ClientExceptionFactory exceptionFactory = clientEngine.getExceptionFactory();
         return exceptionFactory.createExceptionMessage(peelIfNeeded(throwable));
     }
 

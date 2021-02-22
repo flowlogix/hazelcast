@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,7 +200,7 @@ public class SessionAwareSemaphoreProxy extends ClientProxy implements ISemaphor
                 HazelcastClientInstanceImpl client = getClient();
                 ClientMessage response = new ClientInvocation(client, request, objectName).invoke().joinInternal();
                 int count = SemaphoreDrainCodec.decodeResponse(response);
-                sessionManager.releaseSession(groupId, DRAIN_SESSION_ACQ_COUNT - count);
+                sessionManager.releaseSession(groupId, sessionId, DRAIN_SESSION_ACQ_COUNT - count);
                 return count;
             } catch (SessionExpiredException e) {
                 sessionManager.invalidateSession(this.groupId, sessionId);

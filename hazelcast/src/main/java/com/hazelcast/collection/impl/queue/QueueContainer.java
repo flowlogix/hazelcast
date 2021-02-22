@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import com.hazelcast.internal.nio.ClassLoaderUtil;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.internal.util.Clock;
+import com.hazelcast.internal.util.CollectionUtil;
+import com.hazelcast.internal.util.MapUtil;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -48,11 +50,14 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static com.hazelcast.collection.impl.collection.CollectionContainer.ID_PROMOTION_OFFSET;
 import static com.hazelcast.internal.util.ExceptionUtil.rethrow;
+import static com.hazelcast.internal.util.MapUtil.createConcurrentHashMap;
 import static com.hazelcast.internal.util.MapUtil.createHashMap;
 import static com.hazelcast.internal.util.MapUtil.createLinkedHashMap;
 import static com.hazelcast.internal.util.SetUtil.createHashSet;
@@ -77,7 +82,6 @@ public class QueueContainer implements IdentifiedDataSerializable {
     private QueueWaitNotifyKey pollWaitNotifyKey;
     private QueueWaitNotifyKey offerWaitNotifyKey;
     private Queue<QueueItem> itemQueue;
-    private Map<Long, QueueItem> backupMap;
     private QueueConfig config;
     private boolean isPriorityQueue;
     private QueueStoreWrapper store;
@@ -95,14 +99,18 @@ public class QueueContainer implements IdentifiedDataSerializable {
     private long totalAge;
     private long totalAgedCount;
     private boolean isEvictionScheduled;
-    // when QueueStore is configured & enabled, stores the last item ID that was bulk-loaded by QueueStore.loadAll
-    // to avoid reloading same items
+    // when QueueStore is configured & enabled, stores
+    // the last item ID that was bulk-loaded by
+    // QueueStore.loadAll to avoid reloading same items
     private long lastIdLoaded;
+
+    private volatile ConcurrentMap<Long, QueueItem> backupMap;
 
     public QueueContainer() {
     }
 
-    public QueueContainer(String name, QueueConfig config, NodeEngine nodeEngine, QueueService service) {
+    public QueueContainer(String name, QueueConfig config,
+                          NodeEngine nodeEngine, QueueService service) {
         this.name = name;
         this.pollWaitNotifyKey = new QueueWaitNotifyKey(name, "poll");
         this.offerWaitNotifyKey = new QueueWaitNotifyKey(name, "offer");
@@ -854,9 +862,8 @@ public class QueueContainer implements IdentifiedDataSerializable {
      * queue.
      *
      * @param item the item for which the data is being set
-     * @throws Exception if there is any exception. For example, when calling methods on the queue store
      */
-    private void load(QueueItem item) throws Exception {
+    private void load(QueueItem item) {
         int bulkLoad = store.getBulkLoad();
         bulkLoad = Math.min(getItemQueue().size(), bulkLoad);
         if (bulkLoad == 1) {
@@ -925,31 +932,37 @@ public class QueueContainer implements IdentifiedDataSerializable {
 
     private Queue<QueueItem> createLinkedList() {
         Queue<QueueItem> queue = new LinkedList<>();
-        if (backupMap != null && !backupMap.isEmpty()) {
-            List<QueueItem> values = new ArrayList<>(backupMap.values());
-            Collections.sort(values);
-            queue.addAll(values);
-            QueueItem lastItem = ((LinkedList<QueueItem>) queue).peekLast();
-            if (lastItem != null) {
-                setId(lastItem.itemId + ID_PROMOTION_OFFSET);
-            }
-            backupMap.clear();
-            backupMap = null;
+        ConcurrentMap<Long, QueueItem> backupMap = this.backupMap;
+        if (MapUtil.isNullOrEmpty(backupMap)) {
+            return queue;
         }
+
+        List<QueueItem> values = new ArrayList<>(backupMap.values());
+        Collections.sort(values);
+        queue.addAll(values);
+        QueueItem lastItem = ((LinkedList<QueueItem>) queue).peekLast();
+        if (lastItem != null) {
+            setId(lastItem.itemId + ID_PROMOTION_OFFSET);
+        }
+        backupMap.clear();
+        this.backupMap = null;
         return queue;
     }
 
     private Queue<QueueItem> createPriorityQueue() {
         Queue<QueueItem> queue = createPriorityQueue(config);
-        if (backupMap != null && !backupMap.isEmpty()) {
-            queue.addAll(backupMap.values());
-            long maxItemId = backupMap.values().stream()
-                                      .mapToLong(QueueItem::getItemId)
-                                      .max().orElse(0);
-            setId(maxItemId + ID_PROMOTION_OFFSET);
-            backupMap.clear();
-            backupMap = null;
+        ConcurrentMap<Long, QueueItem> backupMap = this.backupMap;
+        if (MapUtil.isNullOrEmpty(backupMap)) {
+            return queue;
         }
+
+        queue.addAll(backupMap.values());
+        long maxItemId = backupMap.values().stream()
+                .mapToLong(QueueItem::getItemId)
+                .max().orElse(0);
+        setId(maxItemId + ID_PROMOTION_OFFSET);
+        backupMap.clear();
+        this.backupMap = null;
         return queue;
     }
 
@@ -980,24 +993,46 @@ public class QueueContainer implements IdentifiedDataSerializable {
      * @return backup replica map from item ID to queue item
      */
     public Map<Long, QueueItem> getBackupMap() {
-        if (backupMap == null) {
-            if (itemQueue != null) {
-                backupMap = createHashMap(itemQueue.size());
-                for (QueueItem item : itemQueue) {
-                    backupMap.put(item.getItemId(), item);
-                }
-                itemQueue.clear();
-                itemQueue = null;
-            } else {
-                backupMap = new HashMap<>();
-            }
+        // To initialize backupMap when itemQueue has items,
+        // we first nullify backupMap.
+        Queue<QueueItem> itemQueue = this.itemQueue;
+        if (!CollectionUtil.isEmpty(itemQueue)
+                && MapUtil.isNullOrEmpty(backupMap)) {
+            backupMap = null;
         }
+
+        // if backupMap is not null then return it
+        ConcurrentMap<Long, QueueItem> backupMap = this.backupMap;
+        if (backupMap != null) {
+            return backupMap;
+        }
+
+        // if backupMap and itemQueue are both
+        // null, init backupMap and return it.
+
+        if (itemQueue == null) {
+            backupMap = new ConcurrentHashMap<>();
+            this.backupMap = backupMap;
+            return backupMap;
+        }
+
+        // if backupMap is null but if we have items
+        // in itemQueue, remove items from itemQueue by
+        // putting them into backupMap and return backupMap
+        backupMap = createConcurrentHashMap(itemQueue.size());
+        QueueItem item;
+        while ((item = itemQueue.poll()) != null) {
+            backupMap.put(item.getItemId(), item);
+        }
+        this.itemQueue = null;
+        this.backupMap = backupMap;
         return backupMap;
     }
 
     // Only used for testing.
     // This method is like `getBackupMap` method but read-only.
     public void scanBackupItems(Consumer<QueueItem> consumer) {
+        Map<Long, QueueItem> backupMap = this.backupMap;
         if (backupMap != null) {
             backupMap.values().forEach(consumer);
         } else {
@@ -1136,7 +1171,7 @@ public class QueueContainer implements IdentifiedDataSerializable {
 
     @Override
     public void writeData(ObjectDataOutput out) throws IOException {
-        out.writeUTF(name);
+        out.writeString(name);
         out.writeInt(getItemQueue().size());
         for (QueueItem item : getItemQueue()) {
             out.writeObject(item);
@@ -1149,7 +1184,7 @@ public class QueueContainer implements IdentifiedDataSerializable {
 
     @Override
     public void readData(ObjectDataInput in) throws IOException {
-        name = in.readUTF();
+        name = in.readString();
         pollWaitNotifyKey = new QueueWaitNotifyKey(name, "poll");
         offerWaitNotifyKey = new QueueWaitNotifyKey(name, "offer");
         int size = in.readInt();
@@ -1175,6 +1210,7 @@ public class QueueContainer implements IdentifiedDataSerializable {
         if (itemQueue != null) {
             itemQueue.clear();
         }
+        ConcurrentMap<Long, QueueItem> backupMap = this.backupMap;
         if (backupMap != null) {
             backupMap.clear();
         }
@@ -1194,5 +1230,14 @@ public class QueueContainer implements IdentifiedDataSerializable {
 
     void setId(long itemId) {
         idGenerator = Math.max(itemId + 1, idGenerator);
+    }
+
+    public void initialize() {
+        // Nullify backup, this is to rescue from the
+        // scenario in which this partition successively
+        // changes ownership between primary and backup.
+        if (!getItemQueue().isEmpty() && MapUtil.isNullOrEmpty(backupMap)) {
+            backupMap = null;
+        }
     }
 }

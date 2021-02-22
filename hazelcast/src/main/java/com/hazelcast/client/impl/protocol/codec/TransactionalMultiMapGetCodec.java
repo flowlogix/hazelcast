@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the collection of values associated with the key.
  */
-@Generated("2d600e5f6a9b96d7db5d6ec909be86ad")
+@Generated("ccd7e24162a2e38852914bbb0d277ff4")
 public final class TransactionalMultiMapGetCodec {
     //hex: 0x0F0200
     public static final int REQUEST_MESSAGE_TYPE = 983552;
@@ -111,8 +111,8 @@ public final class TransactionalMultiMapGetCodec {
     }
 
     /**
-    * The collection of the values associated with the key
-    */
+     * The collection of the values associated with the key
+     */
     public static java.util.List<com.hazelcast.internal.serialization.Data> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

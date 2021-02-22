@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import com.hazelcast.config.MaxSizePolicy;
 import com.hazelcast.config.NativeMemoryConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.NearCachePreloaderConfig;
+import com.hazelcast.config.PersistentMemoryConfig;
 import com.hazelcast.config.PersistentMemoryDirectoryConfig;
 import com.hazelcast.config.QueryCacheConfig;
 import com.hazelcast.config.SerializationConfig;
@@ -83,6 +84,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import static com.hazelcast.config.NearCacheConfig.LocalUpdatePolicy.CACHE_ON_UPDATE;
+import static com.hazelcast.config.PersistentMemoryMode.MOUNTED;
+import static com.hazelcast.config.PersistentMemoryMode.SYSTEM_MEMORY;
 import static com.hazelcast.test.HazelcastTestSupport.assertContains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -151,6 +154,12 @@ public class TestClientApplicationContext {
 
     @Resource(name = "client20-native-memory")
     private HazelcastClientProxy nativeMemoryClient;
+
+    @Resource(name = "client21-persistent-memory-system-memory")
+    private HazelcastClientProxy pmemSystemMemoryClient;
+
+    @Resource(name = "client22-with-overridden-default-serializers")
+    private HazelcastClientProxy clientWithOverriddenDefaultSerializers;
 
     @Resource(name = "instance")
     private HazelcastInstance instance;
@@ -350,11 +359,20 @@ public class TestClientApplicationContext {
 
         assertEquals(ByteOrder.BIG_ENDIAN, serConf.getByteOrder());
         assertFalse(serConf.isAllowUnsafe());
+        assertFalse(serConf.isAllowOverrideDefaultSerializers());
         assertTrue(serConf.isCheckClassDefErrors());
         assertFalse(serConf.isEnableCompression());
         assertTrue(serConf.isEnableSharedObject());
         assertFalse(serConf.isUseNativeByteOrder());
         assertEquals(0, serConf.getPortableVersion());
+    }
+
+    @Test
+    public void testOverrideDefaultSerializersSerializationConfig() {
+        final ClientConfig config = clientWithOverriddenDefaultSerializers.getClientConfig();
+        final SerializationConfig serializationConfig = config.getSerializationConfig();
+
+        assertTrue(serializationConfig.isAllowOverrideDefaultSerializers());
     }
 
     @Test
@@ -552,13 +570,33 @@ public class TestClientApplicationContext {
         assertEquals(NativeMemoryConfig.MemoryAllocatorType.STANDARD, nativeMemoryConfig.getAllocatorType());
         assertEquals(10.2, nativeMemoryConfig.getMetadataSpacePercentage(), 0.1);
         assertEquals(10, nativeMemoryConfig.getMinBlockSize());
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = nativeMemoryConfig.getPersistentMemoryConfig()
-                                                                                   .getDirectoryConfigs();
 
+        PersistentMemoryConfig pmemConfig = nativeMemoryConfig.getPersistentMemoryConfig();
+        assertFalse(pmemConfig.isEnabled());
+        assertEquals(MOUNTED, pmemConfig.getMode());
+
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig.getDirectoryConfigs();
         assertEquals(2, directoryConfigs.size());
         assertEquals("/mnt/pmem0", directoryConfigs.get(0).getDirectory());
         assertEquals(0, directoryConfigs.get(0).getNumaNode());
         assertEquals("/mnt/pmem1", directoryConfigs.get(1).getDirectory());
         assertEquals(1, directoryConfigs.get(1).getNumaNode());
+    }
+
+    @Test
+    public void testNativeMemorySystemMemory() {
+        NativeMemoryConfig nativeMemoryConfig = pmemSystemMemoryClient.getClientConfig().getNativeMemoryConfig();
+
+        assertFalse(nativeMemoryConfig.isEnabled());
+        assertEquals(MemoryUnit.GIGABYTES, nativeMemoryConfig.getSize().getUnit());
+        assertEquals(256, nativeMemoryConfig.getSize().getValue());
+        assertEquals(20, nativeMemoryConfig.getPageSize());
+        assertEquals(NativeMemoryConfig.MemoryAllocatorType.STANDARD, nativeMemoryConfig.getAllocatorType());
+        assertEquals(10.2, nativeMemoryConfig.getMetadataSpacePercentage(), 0.1);
+        assertEquals(10, nativeMemoryConfig.getMinBlockSize());
+
+        PersistentMemoryConfig pmemConfig = nativeMemoryConfig.getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+        assertEquals(SYSTEM_MEMORY, pmemConfig.getMode());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.hazelcast.internal.partition;
 
+import com.hazelcast.config.Config;
 import com.hazelcast.test.ChangeLoggingRule;
 import com.hazelcast.test.HazelcastParallelParametersRunnerFactory;
 import com.hazelcast.test.annotation.ParallelJVMTest;
@@ -38,7 +39,7 @@ import static java.util.Arrays.asList;
 public class MigrationCorrectnessTest extends AbstractMigrationCorrectnessTest {
 
     @ClassRule
-    public static ChangeLoggingRule changeLoggingRule = new ChangeLoggingRule("log4j2-debug.xml");
+    public static ChangeLoggingRule changeLoggingRule = new ChangeLoggingRule("log4j2-trace-migrations.xml");
 
     @Parameters(name = "backups:{0},nodes:{1},fragmented:{2}")
     public static Collection<Object[]> parameters() {
@@ -46,11 +47,16 @@ public class MigrationCorrectnessTest extends AbstractMigrationCorrectnessTest {
                 {1, 2, true},
                 {1, 2, false},
                 {2, 3, true},
-                // These variants are failing frequently.
-                // Ignored these below until we find the cause and fix.
-                // See https://github.com/hazelcast/hazelcast/issues/17377
-                // {3, 4, true},
-                // {3, 4, false},
+                {3, 4, true},
+                {3, 4, false},
         });
     }
+
+    @Override
+    protected Config getConfig() {
+        // Partition count is overwritten back to PartitionCorrectnessTestSupport.partitionCount
+        // in PartitionCorrectnessTestSupport.getConfig(boolean, boolean).
+        return smallInstanceConfig();
+    }
+
 }

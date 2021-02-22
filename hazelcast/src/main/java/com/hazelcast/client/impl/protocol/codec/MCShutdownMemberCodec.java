@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Shuts down the member it's called on.
  */
-@Generated("ea4f5a6f5434bf99f8a374cfff280ade")
+@Generated("064ae1fa3e3ddb1d0f8c4841f97d4205")
 public final class MCShutdownMemberCodec {
     //hex: 0x200800
     public static final int REQUEST_MESSAGE_TYPE = 2099200;
@@ -47,7 +47,6 @@ public final class MCShutdownMemberCodec {
 
     private MCShutdownMemberCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();

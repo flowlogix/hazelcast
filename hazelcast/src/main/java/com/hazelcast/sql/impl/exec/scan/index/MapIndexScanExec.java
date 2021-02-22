@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,9 @@ public class MapIndexScanExec extends MapScanExec {
     /** Stamp to ensure that indexed partitions are stable throughout query execution. */
     private Long partitionStamp;
 
+    // The collation of index entries
+    private List<Boolean> ascs;
+
     @SuppressWarnings("checkstyle:ParameterNumber")
     public MapIndexScanExec(
         int id,
@@ -64,7 +67,8 @@ public class MapIndexScanExec extends MapScanExec {
         String indexName,
         int componentCount,
         IndexFilter indexFilter,
-        List<QueryDataType> converterTypes
+        List<QueryDataType> converterTypes,
+        List<Boolean> ascs
     ) {
         super(
             id,
@@ -83,6 +87,7 @@ public class MapIndexScanExec extends MapScanExec {
         this.componentCount = componentCount;
         this.indexFilter = indexFilter;
         this.converterTypes = converterTypes;
+        this.ascs = ascs;
     }
 
     @Override
@@ -95,7 +100,7 @@ public class MapIndexScanExec extends MapScanExec {
                 SqlErrorCode.INDEX_INVALID,
                 "Cannot use the index \"" + indexName + "\" of the IMap \"" + map.getName() + "\" because it is not global "
                     + "(make sure the property \"" + ClusterProperty.GLOBAL_HD_INDEX_ENABLED + "\" is set to \"true\")"
-            ).withInvalidate();
+            ).markInvalidate();
         }
 
         index = indexes.getIndex(indexName);
@@ -104,7 +109,7 @@ public class MapIndexScanExec extends MapScanExec {
             throw QueryException.error(
                 SqlErrorCode.INDEX_INVALID,
                 "Cannot use the index \"" + indexName + "\" of the IMap \"" + map.getName() + "\" because it doesn't exist"
-            ).withInvalidate();
+            ).markInvalidate();
         }
 
         // Make sure that required partitions are indexed
@@ -114,7 +119,7 @@ public class MapIndexScanExec extends MapScanExec {
             throw invalidIndexStamp();
         }
 
-        return new MapIndexScanExecIterator(mapName, index, componentCount, indexFilter, converterTypes, ctx);
+        return new MapIndexScanExecIterator(mapName, index, componentCount, indexFilter, ascs, converterTypes, ctx);
     }
 
     @Override
@@ -129,13 +134,13 @@ public class MapIndexScanExec extends MapScanExec {
             SqlErrorCode.INDEX_INVALID,
             "Cannot use the index \"" + indexName + "\" of the IMap \"" + mapName + "\" due to concurrent migration, "
                 + "or because index creation is still in progress"
-        ).withInvalidate();
+        ).markInvalidate();
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "{mapName=" + mapName + ", fieldPaths=" + fieldPaths + ", projects=" + projects
             + "indexName=" + indexName + ", indexFilter=" + indexFilter + ", remainderFilter=" + filter
-            + ", partitionCount=" + partitions.size() + '}';
+            + ", partitionCount=" + partitions.size() + ", ascs=" + ascs + '}';
     }
 }

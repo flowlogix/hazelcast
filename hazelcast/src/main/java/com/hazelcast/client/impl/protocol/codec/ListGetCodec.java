@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the element at the specified position in this list
  */
-@Generated("a08c0dfd8fdd29d21bee1574c382ce4d")
+@Generated("a35ce826c6b71d2c81c5c55cc1da450f")
 public final class ListGetCodec {
     //hex: 0x050F00
     public static final int REQUEST_MESSAGE_TYPE = 331520;
@@ -96,8 +96,8 @@ public final class ListGetCodec {
     }
 
     /**
-    * The element at the specified position in this list
-    */
+     * The element at the specified position in this list
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

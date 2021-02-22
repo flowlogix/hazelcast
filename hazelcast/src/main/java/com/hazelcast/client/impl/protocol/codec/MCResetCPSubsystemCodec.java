@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Wipes and resets the whole CP Subsystem state and initializes it
  * as if the Hazelcast cluster is starting up initially.
  */
-@Generated("fa1da70c433f783eed69842fd56e89da")
+@Generated("65b57e3876bec865c4068597f2911bfd")
 public final class MCResetCPSubsystemCodec {
     //hex: 0x201C00
     public static final int REQUEST_MESSAGE_TYPE = 2104320;
@@ -48,7 +48,6 @@ public final class MCResetCPSubsystemCodec {
 
     private MCResetCPSubsystemCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();

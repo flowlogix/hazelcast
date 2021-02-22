@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the number of values matching the given key in the multimap.
  */
-@Generated("0883b08e7f9becf106b70597c8136d30")
+@Generated("15de0572232088b78a24027ed4ec61af")
 public final class TransactionalMultiMapValueCountCodec {
     //hex: 0x0F0500
     public static final int REQUEST_MESSAGE_TYPE = 984320;
@@ -112,8 +112,8 @@ public final class TransactionalMultiMapValueCountCodec {
     }
 
     /**
-    * The number of values matching the given key in the multimap
-    */
+     * The number of values matching the given key in the multimap
+     */
     public static int decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

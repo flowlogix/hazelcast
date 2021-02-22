@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Releases the given number of permits and increases the number of
  * available permits by that amount.
  */
-@Generated("92baa3bef6b87b25ae6a7ea30635e487")
+@Generated("32d50e696d3ea7b0ad49be8a369996e3")
 public final class SemaphoreReleaseCodec {
     //hex: 0x0C0300
     public static final int REQUEST_MESSAGE_TYPE = 787200;
@@ -129,8 +129,8 @@ public final class SemaphoreReleaseCodec {
     }
 
     /**
-    * true
-    */
+     * true
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

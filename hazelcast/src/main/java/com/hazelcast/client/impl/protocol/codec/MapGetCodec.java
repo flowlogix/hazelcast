@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * This method returns a clone of the original value, so modifying the returned value does not change the actual
  * value in the map. You should put the modified value back to make changes visible to all nodes.
  */
-@Generated("c28ac29328266690006c259858d25c0c")
+@Generated("e5572d30d9a2d253780e4d94108cc73b")
 public final class MapGetCodec {
     //hex: 0x010200
     public static final int REQUEST_MESSAGE_TYPE = 66048;
@@ -104,8 +104,8 @@ public final class MapGetCodec {
     }
 
     /**
-    * The value for the key if exists
-    */
+     * The value for the key if exists
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

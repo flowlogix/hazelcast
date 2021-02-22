@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Gets the latest TimedMemberState of the member it's called on.
  */
-@Generated("7745d6f1692b0447a7616d31540b5cb2")
+@Generated("934e0d1461e9215aa7264da56c23f04a")
 public final class MCGetTimedMemberStateCodec {
     //hex: 0x200B00
     public static final int REQUEST_MESSAGE_TYPE = 2099968;
@@ -47,7 +47,6 @@ public final class MCGetTimedMemberStateCodec {
 
     private MCGetTimedMemberStateCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -72,8 +71,8 @@ public final class MCGetTimedMemberStateCodec {
     }
 
     /**
-    * Latest TimedMemberState of the member, serialized as JSON.
-    */
+     * Latest TimedMemberState of the member, serialized as JSON.
+     */
     public static java.lang.String decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

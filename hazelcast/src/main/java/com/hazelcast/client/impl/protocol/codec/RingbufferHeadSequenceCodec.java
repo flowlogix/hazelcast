@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * are found. If the RingBuffer is empty, the head will be one more than the tail.
  * The initial value of the head is 0 (1 more than tail).
  */
-@Generated("12195e1f18a986c7efb2d6e6bd6d88d9")
+@Generated("c8236b60173dd504e6bf72cc5c047d71")
 public final class RingbufferHeadSequenceCodec {
     //hex: 0x170300
     public static final int REQUEST_MESSAGE_TYPE = 1508096;
@@ -50,12 +50,6 @@ public final class RingbufferHeadSequenceCodec {
 
     private RingbufferHeadSequenceCodec() {
     }
-
-    /**
-     * Name of the Ringbuffer
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -69,6 +63,9 @@ public final class RingbufferHeadSequenceCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the Ringbuffer
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -87,8 +84,8 @@ public final class RingbufferHeadSequenceCodec {
     }
 
     /**
-    * the sequence of the head
-    */
+     * the sequence of the head
+     */
     public static long decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

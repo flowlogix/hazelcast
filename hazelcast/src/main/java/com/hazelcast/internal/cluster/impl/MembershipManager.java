@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -305,11 +305,17 @@ public class MembershipManager {
 
         MemberImpl[] members = new MemberImpl[membersView.size()];
         int memberIndex = 0;
+        // Indicates whether we received a notification on lite member membership change
+        // (e.g. its promotion to a data member)
+        boolean updatedLiteMember = false;
         for (MemberInfo memberInfo : membersView.getMembers()) {
             Address address = memberInfo.getAddress();
             MemberImpl member = currentMemberMap.getMember(address);
 
             if (member != null && member.getUuid().equals(memberInfo.getUuid())) {
+                if (member.isLiteMember()) {
+                    updatedLiteMember = true;
+                }
                 member = createNewMemberImplIfChanged(memberInfo, member);
                 members[memberIndex++] = member;
                 continue;
@@ -341,6 +347,10 @@ public class MembershipManager {
         }
 
         setMembers(MemberMap.createNew(membersView.getVersion(), members));
+
+        if (updatedLiteMember) {
+            node.partitionService.updateMemberGroupSize();
+        }
 
         for (MemberImpl member : removedMembers) {
             closeConnection(member.getAddress(), "Member left event received from master");

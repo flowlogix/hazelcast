@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Clears the multimap. Removes all key-value pairs.
  */
-@Generated("285ff012f077f35c8d9771e8a8289455")
+@Generated("c1ca0bf2bfecb999c708ef4130d5ee39")
 public final class MultiMapClearCodec {
     //hex: 0x020B00
     public static final int REQUEST_MESSAGE_TYPE = 133888;
@@ -47,12 +47,6 @@ public final class MultiMapClearCodec {
 
     private MultiMapClearCodec() {
     }
-
-    /**
-     * Name of the MultiMap
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class MultiMapClearCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the MultiMap
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

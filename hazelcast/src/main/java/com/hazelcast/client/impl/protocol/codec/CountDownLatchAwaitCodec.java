@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * waiting time elapses then the value false is returned.  If the time is
  * less than or equal to zero, the method will not wait at all.
  */
-@Generated("9f4433392910229dd72a86fc713379f4")
+@Generated("3319d412e478132246b5ac3244dd8666")
 public final class CountDownLatchAwaitCodec {
     //hex: 0x0B0200
     public static final int REQUEST_MESSAGE_TYPE = 721408;
@@ -127,9 +127,9 @@ public final class CountDownLatchAwaitCodec {
     }
 
     /**
-    * true if the count reached zero, false if
-    * the waiting time elapsed before the count reached 0
-    */
+     * true if the count reached zero, false if
+     * the waiting time elapsed before the count reached 0
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

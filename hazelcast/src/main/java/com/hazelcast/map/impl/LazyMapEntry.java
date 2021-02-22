@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,15 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.impl.CachedQueryEntry;
-import com.hazelcast.query.impl.Metadata;
 import com.hazelcast.query.impl.getters.Extractors;
-
-import static com.hazelcast.map.impl.record.Record.UNSET;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static com.hazelcast.map.impl.record.Record.UNSET;
 
 /**
  * A {@link java.util.Map.Entry Map.Entry} implementation
@@ -65,7 +64,6 @@ public class LazyMapEntry<K, V> extends CachedQueryEntry<K, V>
     private static final long serialVersionUID = 0L;
 
     private transient boolean modified;
-    private transient Metadata metadata;
 
     private transient long newTtl = UNSET;
 
@@ -80,11 +78,11 @@ public class LazyMapEntry<K, V> extends CachedQueryEntry<K, V>
         init(serializationService, key, value, extractors);
     }
 
-    @Override
-    public LazyMapEntry init(InternalSerializationService serializationService, Data key, Object value, Extractors extractors) {
+    public LazyMapEntry init(InternalSerializationService serializationService,
+                             Data key, Object value, Extractors extractors, long ttl) {
         super.init(serializationService, key, value, extractors);
         modified = false;
-        metadata = null;
+        newTtl = ttl;
         return this;
     }
 
@@ -194,13 +192,4 @@ public class LazyMapEntry<K, V> extends CachedQueryEntry<K, V>
     public int getClassId() {
         return MapDataSerializerHook.LAZY_MAP_ENTRY;
     }
-
-    public Metadata getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(Metadata metadata) {
-        this.metadata = metadata;
-    }
-
 }

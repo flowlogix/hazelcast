@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Clears the XA transaction with the given xid from remote member.
  */
-@Generated("803d2dec34203c594d22c43273cd8b3b")
+@Generated("ff91e29be917157a79b624f6adac6b26")
 public final class XATransactionClearRemoteCodec {
     //hex: 0x140100
     public static final int REQUEST_MESSAGE_TYPE = 1310976;
@@ -47,12 +47,6 @@ public final class XATransactionClearRemoteCodec {
 
     private XATransactionClearRemoteCodec() {
     }
-
-    /**
-     * Java XA transaction id as defined in interface javax.transaction.xa.Xid.
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public com.hazelcast.transaction.impl.xa.SerializableXID xid;
 
     public static ClientMessage encodeRequest(javax.transaction.xa.Xid xid) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class XATransactionClearRemoteCodec {
         return clientMessage;
     }
 
+    /**
+     * Java XA transaction id as defined in interface javax.transaction.xa.Xid.
+     */
     public static com.hazelcast.transaction.impl.xa.SerializableXID decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

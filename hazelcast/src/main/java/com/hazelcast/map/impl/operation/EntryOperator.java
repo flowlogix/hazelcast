@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.ReadOnly;
 import com.hazelcast.internal.monitor.impl.LocalMapStatsImpl;
 import com.hazelcast.internal.partition.IPartitionService;
+import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.internal.util.Clock;
 import com.hazelcast.internal.util.Timer;
@@ -35,7 +36,6 @@ import com.hazelcast.map.impl.MapServiceContext;
 import com.hazelcast.map.impl.event.MapEventPublisher;
 import com.hazelcast.map.impl.record.Record;
 import com.hazelcast.map.impl.recordstore.RecordStore;
-import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.query.impl.QueryableEntry;
@@ -141,19 +141,23 @@ public final class EntryOperator {
     }
 
     public EntryOperator init(Data dataKey, Object oldValue, Object newValue, Data result,
-                              EntryEventType eventType, Boolean locked) {
+                              EntryEventType eventType, Boolean locked, long ttl) {
         this.dataKey = dataKey;
         this.oldValue = oldValue;
         this.eventType = eventType;
         this.result = result;
         this.didMatchPredicate = true;
         this.entry.init(ss, dataKey, newValue != null ? newValue : oldValue,
-                mapContainer.getExtractors(), locked);
+                mapContainer.getExtractors(), locked, ttl);
         return this;
     }
 
+    public LockAwareLazyMapEntry getEntry() {
+        return entry;
+    }
+
     public EntryOperator operateOnKey(Data dataKey) {
-        init(dataKey, null, null, null, null, null);
+        init(dataKey, null, null, null, null, null, UNSET);
 
         if (belongsAnotherPartition(dataKey)) {
             return this;
@@ -176,8 +180,10 @@ public final class EntryOperator {
         return operateOnKeyValueInternal(dataKey, oldValue, null);
     }
 
-    private EntryOperator operateOnKeyValueInternal(Data dataKey, Object oldValue, Boolean locked) {
-        init(dataKey, oldValue, null, null, null, locked);
+    private EntryOperator operateOnKeyValueInternal(Data dataKey,
+                                                    Object oldValue,
+                                                    Boolean locked) {
+        init(dataKey, oldValue, null, null, null, locked, UNSET);
 
         if (outOfPredicateScope(entry)) {
             this.didMatchPredicate = false;
@@ -257,7 +263,7 @@ public final class EntryOperator {
         Object newValue = inMemoryFormat == OBJECT
                 ? entry.getValue() : entry.getByPrioritizingDataValue();
         if (backup) {
-            recordStore.putBackup(dataKey, newValue, entry.getNewTtl(), UNSET, NOT_WAN);
+            recordStore.putBackup(dataKey, newValue, entry.getNewTtl(), UNSET, UNSET, NOT_WAN);
         } else {
             recordStore.setWithUncountedAccess(dataKey, newValue, entry.getNewTtl(), UNSET);
             if (mapOperation.isPostProcessing(recordStore)) {
@@ -319,7 +325,7 @@ public final class EntryOperator {
         // updates access time if record exists
         Record record = recordStore.getRecord(dataKey);
         if (record != null) {
-            recordStore.accessRecord(record, Clock.currentTimeMillis());
+            recordStore.accessRecord(dataKey, record, Clock.currentTimeMillis());
         }
     }
 

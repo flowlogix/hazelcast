@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * is closed between reentrant acquires, the call fails with
  * {@code LockOwnershipLostException}.
  */
-@Generated("e97dc2ef85216fa0945c9cc89eb0e81d")
+@Generated("673f97d1e192bf78a1fbfd15bbeb75f3")
 public final class FencedLockLockCodec {
     //hex: 0x070100
     public static final int REQUEST_MESSAGE_TYPE = 459008;
@@ -126,9 +126,9 @@ public final class FencedLockLockCodec {
     }
 
     /**
-    * a valid fencing token (positive number) if the lock
-    * is acquired, otherwise -1.
-    */
+     * a valid fencing token (positive number) if the lock
+     * is acquired, otherwise -1.
+     */
     public static long decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

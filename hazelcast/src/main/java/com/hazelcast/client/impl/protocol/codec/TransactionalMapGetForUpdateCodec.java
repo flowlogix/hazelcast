@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Locks the key and then gets and returns the value to which the specified key is mapped. Lock will be released at
  * the end of the transaction (either commit or rollback).
  */
-@Generated("6160585e2748af5de71c7c4e01937e4e")
+@Generated("91f1d58ed08c0165002fa441d6c145f1")
 public final class TransactionalMapGetForUpdateCodec {
     //hex: 0x0E0300
     public static final int REQUEST_MESSAGE_TYPE = 918272;
@@ -112,8 +112,8 @@ public final class TransactionalMapGetForUpdateCodec {
     }
 
     /**
-    * The value for the specified key
-    */
+     * The value for the specified key
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,11 @@ public class AtomicLongProxy extends ClientProxy implements IAtomicLong {
     }
 
     @Override
+    public long getAndDecrement() {
+        return getAndDecrementAsync().joinInternal();
+    }
+
+    @Override
     public long get() {
         return getAsync().joinInternal();
     }
@@ -138,6 +143,11 @@ public class AtomicLongProxy extends ClientProxy implements IAtomicLong {
     @Override
     public InternalCompletableFuture<Long> decrementAndGetAsync() {
         return addAndGetAsync(-1);
+    }
+
+    @Override
+    public InternalCompletableFuture<Long> getAndDecrementAsync() {
+        return getAndAddAsync(-1);
     }
 
     @Override

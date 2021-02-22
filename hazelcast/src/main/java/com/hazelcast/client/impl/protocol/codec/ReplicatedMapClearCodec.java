@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * it is retried for at most 3 times (on the failing nodes only). If it does not work after the third time, this
  * method throws a OPERATION_TIMEOUT back to the caller.
  */
-@Generated("351dfb129f6a14a51d932afc4c4e8068")
+@Generated("8d5676288a82e1c8894be9028786d5dd")
 public final class ReplicatedMapClearCodec {
     //hex: 0x0D0900
     public static final int REQUEST_MESSAGE_TYPE = 854272;
@@ -50,12 +50,6 @@ public final class ReplicatedMapClearCodec {
 
     private ReplicatedMapClearCodec() {
     }
-
-    /**
-     * Name of the Replicated Map
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -69,6 +63,9 @@ public final class ReplicatedMapClearCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the Replicated Map
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

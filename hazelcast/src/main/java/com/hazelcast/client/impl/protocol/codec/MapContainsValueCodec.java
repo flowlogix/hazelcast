@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Returns true if this map maps one or more keys to the specified value.This operation will probably require time
  * linear in the map size for most implementations of the Map interface.
  */
-@Generated("88e096f93252bd8751bf5c0caf3237f6")
+@Generated("21505227abc402ba8e5d0e956f8f99b7")
 public final class MapContainsValueCodec {
     //hex: 0x010700
     public static final int REQUEST_MESSAGE_TYPE = 67328;
@@ -98,8 +98,8 @@ public final class MapContainsValueCodec {
     }
 
     /**
-    * Returns true if the value exists, otherwise returns false.
-    */
+     * Returns true if the value exists, otherwise returns false.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

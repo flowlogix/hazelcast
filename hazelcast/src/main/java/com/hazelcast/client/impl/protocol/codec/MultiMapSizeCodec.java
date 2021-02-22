@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the number of key-value pairs in the multimap.
  */
-@Generated("f7ee345aebbdea2f073151fd60e4ad6d")
+@Generated("03951f433eafa03f4300ce665df72e1e")
 public final class MultiMapSizeCodec {
     //hex: 0x020A00
     public static final int REQUEST_MESSAGE_TYPE = 133632;
@@ -48,12 +48,6 @@ public final class MultiMapSizeCodec {
 
     private MultiMapSizeCodec() {
     }
-
-    /**
-     * Name of the MultiMap
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -67,6 +61,9 @@ public final class MultiMapSizeCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the MultiMap
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -85,8 +82,8 @@ public final class MultiMapSizeCodec {
     }
 
     /**
-    * The number of key-value pairs in the multimap.
-    */
+     * The number of key-value pairs in the multimap.
+     */
     public static int decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ class ConfigOverrideElementAdapter implements Element {
 
     @Override
     public String getNodeValue() throws DOMException {
-        return configNode.getValue().orElse(null);
+        return configNode.getValue();
     }
 
     @Override
@@ -252,8 +252,8 @@ class ConfigOverrideElementAdapter implements Element {
     @Override
     public String getAttribute(String name) {
         ConfigNode configNode = this.configNode.getChildren().get(name);
-        return configNode != null && configNode.getValue().isPresent()
-          ? configNode.getValue().get()
+        return configNode != null && configNode.hasValue()
+          ? configNode.getValue()
           : "";
     }
 

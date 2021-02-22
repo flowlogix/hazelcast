@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,7 +180,7 @@ public class RingbufferService implements ManagedService, RemoteService, Fragmen
     public <T, E> RingbufferContainer<T, E> getOrCreateContainer(int partitionId, ObjectNamespace namespace,
                                                                  RingbufferConfig config) {
         if (config == null) {
-            throw new NullPointerException("Ringbuffer config should not be null when ringbuffer is being created");
+            throw new NullPointerException("Ringbuffer config must not be null when ringbuffer is being created");
         }
         final Map<ObjectNamespace, RingbufferContainer> partitionContainers = getOrCreateRingbufferContainers(partitionId);
 

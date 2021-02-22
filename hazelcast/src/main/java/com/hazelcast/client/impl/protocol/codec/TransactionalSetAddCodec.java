@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Add new item to transactional set.
  */
-@Generated("d2ca7399bfa90ef798c2ad482422ecb5")
+@Generated("e0d00c3af64e3faba31561f2a87f40aa")
 public final class TransactionalSetAddCodec {
     //hex: 0x100100
     public static final int REQUEST_MESSAGE_TYPE = 1048832;
@@ -112,8 +112,8 @@ public final class TransactionalSetAddCodec {
     }
 
     /**
-    * True if item is added successfully
-    */
+     * True if item is added successfully
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

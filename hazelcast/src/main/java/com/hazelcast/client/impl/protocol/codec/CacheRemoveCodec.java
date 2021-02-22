@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Atomically removes the mapping for a key only if currently mapped to the given value.
  */
-@Generated("ad27d93098aa756069dec9a4ca3eb965")
+@Generated("3c978b6c04ff9e9d55276c8138ad81a9")
 public final class CacheRemoveCodec {
     //hex: 0x131600
     public static final int REQUEST_MESSAGE_TYPE = 1250816;
@@ -112,8 +112,8 @@ public final class CacheRemoveCodec {
     }
 
     /**
-    * returns false if there was no matching key
-    */
+     * returns false if there was no matching key
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

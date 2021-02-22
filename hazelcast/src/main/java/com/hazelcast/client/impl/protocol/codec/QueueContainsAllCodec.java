@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Return true if this collection contains all of the elements in the specified collection.
  */
-@Generated("eb5b00e50d1e34f7060660f805c00fef")
+@Generated("2a345a2dcc46f988467a2a672e92330d")
 public final class QueueContainsAllCodec {
     //hex: 0x030C00
     public static final int REQUEST_MESSAGE_TYPE = 199680;
@@ -97,8 +97,8 @@ public final class QueueContainsAllCodec {
     }
 
     /**
-    * <tt>true</tt> if this collection contains all of the elements in the specified collection
-    */
+     * <tt>true</tt> if this collection contains all of the elements in the specified collection
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

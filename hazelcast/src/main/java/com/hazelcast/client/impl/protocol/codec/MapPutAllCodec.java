@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * matching to a different partition id shall be ignored. The API implementation using this request may need to send multiple
  * of these request messages for filling a request for a key set if the keys belong to different partitions.
  */
-@Generated("e1dbf7aca4974894ebf5ac181eb01ae7")
+@Generated("bafbc2c32f9444a57f635b7134c45641")
 public final class MapPutAllCodec {
     //hex: 0x012C00
     public static final int REQUEST_MESSAGE_TYPE = 76800;
@@ -76,7 +76,7 @@ public final class MapPutAllCodec {
         /**
          * True if the triggerMapLoader is received from the client, false otherwise.
          * If this is false, triggerMapLoader has the default value for its type.
-        */
+         */
         public boolean isTriggerMapLoaderExists;
     }
 

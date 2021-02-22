@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Removes the specified map partition lost listener. If there is no such listener added before, this call does no
  * change in the cluster and returns false.
  */
-@Generated("7b113c66bf08167a8d8614d4424a931f")
+@Generated("378330c9b06ac00aa0953f2d3aa09e35")
 public final class MapRemovePartitionLostListenerCodec {
     //hex: 0x011C00
     public static final int REQUEST_MESSAGE_TYPE = 72704;
@@ -98,8 +98,8 @@ public final class MapRemovePartitionLostListenerCodec {
     }
 
     /**
-    * true if registration is removed, false otherwise.
-    */
+     * true if registration is removed, false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

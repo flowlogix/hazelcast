@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,10 @@ class ServiceAnswer extends AbstractAnswer {
         } else if (arguments.length == 2 && methodName.equals("getOrCreateContainer")) {
             // QueueService
             Method delegateMethod = getDelegateMethod(methodName, String.class, Boolean.TYPE);
+            return invoke(delegateMethod, arguments);
+        } else if (arguments.length == 1 && methodName.equals("getExistingContainerOrNull")) {
+            // QueueService
+            Method delegateMethod = getDelegateMethod(methodName, String.class);
             return invoke(delegateMethod, arguments);
         } else if (arguments.length == 1 && (methodName.equals("getLongContainer")
                 || methodName.equals("getReferenceContainer")

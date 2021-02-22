@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a queue configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("faed08d78771f41333205db25009f47e")
+@Generated("d684b4d3f425e87c3bacc29563b202b3")
 public final class DynamicConfigAddQueueConfigCodec {
     //hex: 0x1B0B00
     public static final int REQUEST_MESSAGE_TYPE = 1772288;
@@ -124,7 +124,7 @@ public final class DynamicConfigAddQueueConfigCodec {
         /**
          * True if the priorityComparatorClassName is received from the client, false otherwise.
          * If this is false, priorityComparatorClassName has the default value for its type.
-        */
+         */
         public boolean isPriorityComparatorClassNameExists;
     }
 

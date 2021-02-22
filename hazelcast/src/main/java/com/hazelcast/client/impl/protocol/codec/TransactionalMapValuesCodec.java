@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * so changes to the map are NOT reflected in the collection, and vice-versa. This method is always executed by a
  * distributed query, so it may throw a QueryResultSizeExceededException if query result size limit is configured.
  */
-@Generated("73c70861f518f680de766d1e384afaaa")
+@Generated("8a8f152ddebb5798df738d1484d2d2bc")
 public final class TransactionalMapValuesCodec {
     //hex: 0x0E1000
     public static final int REQUEST_MESSAGE_TYPE = 921600;
@@ -106,8 +106,8 @@ public final class TransactionalMapValuesCodec {
     }
 
     /**
-    * All values in the map
-    */
+     * All values in the map
+     */
     public static java.util.List<com.hazelcast.internal.serialization.Data> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ import static com.hazelcast.config.EvictionPolicy.LRU;
 import static com.hazelcast.config.MaxSizePolicy.ENTRY_COUNT;
 import static com.hazelcast.config.PermissionConfig.PermissionType.CACHE;
 import static com.hazelcast.config.PermissionConfig.PermissionType.CONFIG;
+import static com.hazelcast.config.PersistentMemoryMode.MOUNTED;
 import static com.hazelcast.config.RestEndpointGroup.CLUSTER_READ;
 import static com.hazelcast.config.RestEndpointGroup.HEALTH_CHECK;
 import static com.hazelcast.config.WanQueueFullBehavior.THROW_EXCEPTION;
@@ -224,6 +225,8 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
                 + "          <relax-flags-check>true</relax-flags-check>"
                 + "          <use-name-without-realm>true</use-name-without-realm>"
                 + "          <security-realm>krb5Acceptor</security-realm>"
+                + "          <principal>jduke@HAZELCAST.COM</principal>"
+                + "          <keytab-file>/opt/jduke.keytab</keytab-file>"
                 + "          <ldap>"
                 + "            <url>ldap://127.0.0.1</url>"
                 + "          </ldap>"
@@ -233,6 +236,8 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
                 + "        <kerberos>"
                 + "          <realm>HAZELCAST.COM</realm>"
                 + "          <security-realm>krb5Initializer</security-realm>"
+                + "          <principal>jduke@HAZELCAST.COM</principal>"
+                + "          <keytab-file>/opt/jduke.keytab</keytab-file>"
                 + "          <use-canonical-hostname>true</use-canonical-hostname>"
                 + "        </kerberos>"
                 + "      </identity>"
@@ -302,6 +307,8 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
         assertNotNull(kerbIdentity);
         assertEquals("HAZELCAST.COM", kerbIdentity.getRealm());
         assertEquals("krb5Initializer", kerbIdentity.getSecurityRealm());
+        assertEquals("jduke@HAZELCAST.COM", kerbIdentity.getPrincipal());
+        assertEquals("/opt/jduke.keytab", kerbIdentity.getKeytabFile());
         assertTrue(kerbIdentity.getUseCanonicalHostname());
 
         KerberosAuthenticationConfig kerbAuthentication = kerberosRealm.getKerberosAuthenticationConfig();
@@ -310,6 +317,8 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
         assertEquals(Boolean.FALSE, kerbAuthentication.getSkipRole());
         assertNull(kerbAuthentication.getSkipIdentity());
         assertEquals("krb5Acceptor", kerbAuthentication.getSecurityRealm());
+        assertEquals("jduke@HAZELCAST.COM", kerbAuthentication.getPrincipal());
+        assertEquals("/opt/jduke.keytab", kerbAuthentication.getKeytabFile());
         assertTrue(kerbAuthentication.getUseNameWithoutRealm());
 
         LdapAuthenticationConfig kerbLdapAuthentication = kerbAuthentication.getLdapAuthenticationConfig();
@@ -904,6 +913,34 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
     }
 
     @Override
+    public void testMapConfig_statisticsEnable() {
+        String xml = HAZELCAST_START_TAG
+                + "<map name=\"mymap\">"
+                + "<statistics-enabled>false</statistics-enabled>"
+                + "</map>"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        MapConfig mapConfig = config.getMapConfig("mymap");
+
+        assertFalse(mapConfig.isStatisticsEnabled());
+    }
+
+    @Override
+    public void testMapConfig_perEntryStatsEnabled() {
+        String xml = HAZELCAST_START_TAG
+                + "<map name=\"mymap\">"
+                + "<per-entry-stats-enabled>true</per-entry-stats-enabled>"
+                + "</map>"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        MapConfig mapConfig = config.getMapConfig("mymap");
+
+        assertTrue(mapConfig.isPerEntryStatsEnabled());
+    }
+
+    @Override
     @Test
     public void testMapConfig_metadataPolicy_defaultValue() {
         String xml = HAZELCAST_START_TAG
@@ -1037,6 +1074,51 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
 
     @Override
     @Test
+    public void testMapStoreEnabled() {
+        String xml = HAZELCAST_START_TAG
+                + "<map name=\"mymap\">"
+                + "<map-store enabled=\"true\" />"
+                + "</map>"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        MapStoreConfig mapStoreConfig = config.getMapConfig("mymap").getMapStoreConfig();
+
+        assertTrue(mapStoreConfig.isEnabled());
+    }
+
+    @Override
+    @Test
+    public void testMapStoreEnabledIfNotDisabled() {
+        String xml = HAZELCAST_START_TAG
+                + "<map name=\"mymap\">"
+                + "<map-store />"
+                + "</map>"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        MapStoreConfig mapStoreConfig = config.getMapConfig("mymap").getMapStoreConfig();
+
+        assertTrue(mapStoreConfig.isEnabled());
+    }
+
+    @Override
+    @Test
+    public void testMapStoreDisabled() {
+        String xml = HAZELCAST_START_TAG
+                + "<map name=\"mymap\">"
+                + "<map-store enabled=\"false\" />"
+                + "</map>"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        MapStoreConfig mapStoreConfig = config.getMapConfig("mymap").getMapStoreConfig();
+
+        assertFalse(mapStoreConfig.isEnabled());
+    }
+
+    @Override
+    @Test
     public void testMapStoreConfig_writeCoalescing_whenDefault() {
         MapStoreConfig mapStoreConfig = getWriteCoalescingMapStoreConfig(MapStoreConfig.DEFAULT_WRITE_COALESCING, true);
 
@@ -1163,6 +1245,32 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
         PartitionGroupConfig partitionGroupConfig = config.getPartitionGroupConfig();
         assertTrue(partitionGroupConfig.isEnabled());
         assertEquals(PartitionGroupConfig.MemberGroupType.ZONE_AWARE, partitionGroupConfig.getGroupType());
+    }
+
+    @Override
+    @Test
+    public void testPartitionGroupNodeAware() {
+        String xml = HAZELCAST_START_TAG
+                + "<partition-group enabled=\"true\" group-type=\"NODE_AWARE\" />"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        PartitionGroupConfig partitionGroupConfig = config.getPartitionGroupConfig();
+        assertTrue(partitionGroupConfig.isEnabled());
+        assertEquals(PartitionGroupConfig.MemberGroupType.NODE_AWARE, partitionGroupConfig.getGroupType());
+    }
+
+    @Override
+    @Test
+    public void testPartitionGroupPlacementAware() {
+        String xml = HAZELCAST_START_TAG
+                + "<partition-group enabled=\"true\" group-type=\"PLACEMENT_AWARE\" />"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        PartitionGroupConfig partitionGroupConfig = config.getPartitionGroupConfig();
+        assertTrue(partitionGroupConfig.isEnabled());
+        assertEquals(PartitionGroupConfig.MemberGroupType.PLACEMENT_AWARE, partitionGroupConfig.getGroupType());
     }
 
     @Override
@@ -2703,6 +2811,22 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
     }
 
     @Override
+    public void testEmptyUserCodeDeployment() {
+        String xml = HAZELCAST_START_TAG
+                + "<user-code-deployment enabled=\"true\"/>\n"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        UserCodeDeploymentConfig userCodeDeploymentConfig = config.getUserCodeDeploymentConfig();
+        assertTrue(userCodeDeploymentConfig.isEnabled());
+        assertEquals(UserCodeDeploymentConfig.ClassCacheMode.ETERNAL, userCodeDeploymentConfig.getClassCacheMode());
+        assertEquals(UserCodeDeploymentConfig.ProviderMode.LOCAL_AND_CACHED_CLASSES, userCodeDeploymentConfig.getProviderMode());
+        assertNull(userCodeDeploymentConfig.getBlacklistedPrefixes());
+        assertNull(userCodeDeploymentConfig.getWhitelistedPrefixes());
+        assertNull(userCodeDeploymentConfig.getProviderFilter());
+    }
+
+    @Override
     @Test
     public void testCRDTReplicationConfig() {
         final String xml = HAZELCAST_START_TAG
@@ -2774,6 +2898,22 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
         assertTrue(whiteList.getPrefixes().contains("["));
         assertTrue(blackList.getClasses().contains("com.acme.app.BeanComparator"));
     }
+
+    @Override
+    @Test
+    public void testAllowOverrideDefaultSerializers() {
+        String xml = HAZELCAST_START_TAG
+          + "  <serialization>\n"
+          + "      <allow-override-default-serializers>true</allow-override-default-serializers>\n"
+          + "  </serialization>\n"
+          + HAZELCAST_END_TAG;
+
+        final Config config = new InMemoryXmlConfig(xml);
+        final boolean isAllowOverrideDefaultSerializers
+          = config.getSerializationConfig().isAllowOverrideDefaultSerializers();
+        assertTrue(isAllowOverrideDefaultSerializers);
+    }
+
 
     @Override
     @Test
@@ -3327,9 +3467,12 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
 
         Config xmlConfig = new InMemoryXmlConfig(xml);
 
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = xmlConfig.getNativeMemoryConfig()
-                                                                          .getPersistentMemoryConfig()
+        PersistentMemoryConfig pmemConfig = xmlConfig.getNativeMemoryConfig()
+                .getPersistentMemoryConfig();
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig
                                                                           .getDirectoryConfigs();
+        assertFalse(pmemConfig.isEnabled());
+        assertEquals(MOUNTED, pmemConfig.getMode());
         assertEquals(2, directoryConfigs.size());
         PersistentMemoryDirectoryConfig dir0Config = directoryConfigs.get(0);
         PersistentMemoryDirectoryConfig dir1Config = directoryConfigs.get(1);
@@ -3350,9 +3493,10 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
 
         Config xmlConfig = new InMemoryXmlConfig(xml);
 
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = xmlConfig.getNativeMemoryConfig()
-                                                                          .getPersistentMemoryConfig()
-                                                                          .getDirectoryConfigs();
+        PersistentMemoryConfig pmemConfig = xmlConfig.getNativeMemoryConfig().getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig.getDirectoryConfigs();
         assertEquals(1, directoryConfigs.size());
         PersistentMemoryDirectoryConfig dir0Config = directoryConfigs.get(0);
         assertEquals("/mnt/pmem0", dir0Config.getDirectory());
@@ -3416,7 +3560,7 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
         String xml = HAZELCAST_START_TAG
                 + "<native-memory>\n"
                 + "  <persistent-memory-directory>/mnt/optane</persistent-memory-directory>\n"
-                + "  <persistent-memory>\n"
+                + "  <persistent-memory mode=\"MOUNTED\">\n"
                 + "    <directories>\n"
                 + "      <directory>/mnt/pmem0</directory>\n"
                 + "      <directory>/mnt/pmem1</directory>\n"
@@ -3426,9 +3570,11 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
                 + HAZELCAST_END_TAG;
 
         Config config = buildConfig(xml);
-        List<PersistentMemoryDirectoryConfig> directoryConfigs = config.getNativeMemoryConfig()
-                                                                       .getPersistentMemoryConfig()
-                                                                       .getDirectoryConfigs();
+        PersistentMemoryConfig pmemConfig = config.getNativeMemoryConfig().getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+        assertEquals(MOUNTED, pmemConfig.getMode());
+
+        List<PersistentMemoryDirectoryConfig> directoryConfigs = pmemConfig.getDirectoryConfigs();
         assertEquals(3, directoryConfigs.size());
         PersistentMemoryDirectoryConfig dir0Config = directoryConfigs.get(0);
         PersistentMemoryDirectoryConfig dir1Config = directoryConfigs.get(1);
@@ -3439,6 +3585,49 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
         assertFalse(dir1Config.isNumaNodeSet());
         assertEquals("/mnt/pmem1", dir2Config.getDirectory());
         assertFalse(dir2Config.isNumaNodeSet());
+    }
+
+    @Override
+    @Test
+    public void testPersistentMemoryConfiguration_SystemMemoryMode() {
+        String xml = HAZELCAST_START_TAG
+                + "<native-memory>\n"
+                + "  <persistent-memory enabled=\"true\" mode=\"SYSTEM_MEMORY\" />\n"
+                + "</native-memory>\n"
+                + HAZELCAST_END_TAG;
+
+        Config config = buildConfig(xml);
+        PersistentMemoryConfig pmemConfig = config.getNativeMemoryConfig().getPersistentMemoryConfig();
+        assertTrue(pmemConfig.isEnabled());
+        assertEquals(PersistentMemoryMode.SYSTEM_MEMORY, pmemConfig.getMode());
+    }
+
+    @Override
+    @Test(expected = InvalidConfigurationException.class)
+    public void testPersistentMemoryConfiguration_NotExistingModeThrows() {
+        String xml = HAZELCAST_START_TAG
+                + "<native-memory>\n"
+                + "  <persistent-memory mode=\"NOT_EXISTING_MODE\" />\n"
+                + "</native-memory>\n"
+                + HAZELCAST_END_TAG;
+
+        buildConfig(xml);
+    }
+
+    @Override
+    @Test(expected = InvalidConfigurationException.class)
+    public void testPersistentMemoryDirectoryConfiguration_SystemMemoryModeThrows() {
+        String xml = HAZELCAST_START_TAG
+                + "<native-memory>\n"
+                + "  <persistent-memory mode=\"SYSTEM_MEMORY\">\n"
+                + "    <directories>\n"
+                + "      <directory>/mnt/pmem0</directory>\n"
+                + "    </directories>\n"
+                + "  </persistent-memory>\n"
+                + "</native-memory>\n"
+                + HAZELCAST_END_TAG;
+
+        buildConfig(xml);
     }
 
     @Override
@@ -3640,14 +3829,31 @@ public class XMLConfigBuilderTest extends AbstractConfigBuilderTest {
         String xml = HAZELCAST_START_TAG
             + "<sql>\n"
             + "  <executor-pool-size>10</executor-pool-size>\n"
-            + "  <operation-pool-size>20</operation-pool-size>\n"
             + "  <statement-timeout-millis>30</statement-timeout-millis>\n"
             + "</sql>"
             + HAZELCAST_END_TAG;
         Config config = new InMemoryXmlConfig(xml);
         SqlConfig sqlConfig = config.getSqlConfig();
         assertEquals(10, sqlConfig.getExecutorPoolSize());
-        assertEquals(20, sqlConfig.getOperationPoolSize());
         assertEquals(30L, sqlConfig.getStatementTimeoutMillis());
+    }
+
+    @Override
+    protected Config buildMapWildcardConfig() {
+        String xml = HAZELCAST_START_TAG
+                + "<map name=\"map*\">\n"
+                + "  <attributes>\n"
+                + "    <attribute extractor-class-name=\"usercodedeployment.CapitalizingFirstNameExtractor\">name</attribute>\n"
+                + "  </attributes>\n"
+                + "</map>\n"
+                + "<map name=\"mapBackup2*\">\n"
+                + "  <backup-count>2</backup-count>"
+                + "  <attributes>\n"
+                + "    <attribute extractor-class-name=\"usercodedeployment.CapitalizingFirstNameExtractor\">name</attribute>\n"
+                + "  </attributes>\n"
+                + "</map>\n"
+                + HAZELCAST_END_TAG;
+
+        return new InMemoryXmlConfig(xml);
     }
 }

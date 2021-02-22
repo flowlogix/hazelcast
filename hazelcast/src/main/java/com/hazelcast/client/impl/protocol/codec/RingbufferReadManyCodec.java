@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * true are returned. Using filters is a good way to prevent getting items that are of no value to the receiver.
  * This reduces the amount of IO and the number of operations being executed, and can result in a significant performance improvement.
  */
-@Generated("68b6bdcf934053207c1d61b5d75c802b")
+@Generated("c013f736a0304b075583e8b263ef614e")
 public final class RingbufferReadManyCodec {
     //hex: 0x170900
     public static final int REQUEST_MESSAGE_TYPE = 1509632;
@@ -118,18 +118,22 @@ public final class RingbufferReadManyCodec {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
     public static class ResponseParameters {
+
         /**
          * Number of items that have been read before filtering.
          */
         public int readCount;
+
         /**
          * List of items that have beee read.
          */
         public java.util.List<com.hazelcast.internal.serialization.Data> items;
+
         /**
          * List of sequence numbers for the items that have been read.
          */
         public @Nullable long[] itemSeqs;
+
         /**
          * Sequence number of the item following the last read item.
          */

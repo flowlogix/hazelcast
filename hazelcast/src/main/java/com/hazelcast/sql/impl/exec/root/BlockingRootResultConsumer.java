@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,11 @@ public class BlockingRootResultConsumer implements RootResultConsumer {
     private List<Row> awaitNextBatch() {
         synchronized (mux) {
             while (true) {
+                // Throw error early.
+                if (doneError != null) {
+                    throw doneError;
+                }
+
                 // Consume the batch if it is available.
                 if (currentBatch != null) {
                     List<Row> res = currentBatch;
@@ -112,10 +117,6 @@ public class BlockingRootResultConsumer implements RootResultConsumer {
 
                 // Handle end of the stream.
                 if (done) {
-                    if (doneError != null) {
-                        throw doneError;
-                    }
-
                     return null;
                 }
 

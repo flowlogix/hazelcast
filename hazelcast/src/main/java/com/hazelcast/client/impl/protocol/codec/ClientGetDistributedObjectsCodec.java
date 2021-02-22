@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Gets the list of distributed objects in the cluster.
  */
-@Generated("f921737ff0d33af2372e34b323197a54")
+@Generated("0dbc7263ae5e452261583566d79e00fb")
 public final class ClientGetDistributedObjectsCodec {
     //hex: 0x000800
     public static final int REQUEST_MESSAGE_TYPE = 2048;
@@ -47,7 +47,6 @@ public final class ClientGetDistributedObjectsCodec {
 
     private ClientGetDistributedObjectsCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -72,8 +71,8 @@ public final class ClientGetDistributedObjectsCodec {
     }
 
     /**
-    * An array of distributed object info in the cluster.
-    */
+     * An array of distributed object info in the cluster.
+     */
     public static java.util.List<com.hazelcast.client.impl.client.DistributedObjectInfo> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

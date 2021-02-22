@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,11 +152,11 @@ public class HttpPostCommand extends HttpCommand {
     }
 
     private void readLF(ByteBuffer cb) {
-        assert cb.hasRemaining() : "'\\n' should follow '\\r'";
+        assert cb.hasRemaining() : "'\\n' must follow '\\r'";
 
         byte b = cb.get();
         if (b != LINE_FEED) {
-            throw new IllegalStateException("'\\n' should follow '\\r', but got '" + (char) b + "'");
+            throw new IllegalStateException("'\\n' must follow '\\r', but got '" + (char) b + "'");
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,6 +93,28 @@ public abstract class AbstractAtomicRefBasicTest extends HazelcastRaftTestSuppor
         assertEquals("str1", atomicRef.get());
         assertEquals("str1", atomicRef.getAndSet("str2"));
         assertEquals("str2", atomicRef.get());
+    }
+
+    @Test
+    public void test_get_whenRefIsException() {
+        IAtomicReference atomicRef = createAtomicRef(randomName());
+        RuntimeException value = new RuntimeException("boom");
+        atomicRef.set(value);
+        assertInstanceOf(RuntimeException.class, atomicRef.get());
+        assertEquals(value.getMessage(),
+                ((RuntimeException) atomicRef.get()).getMessage());
+    }
+
+    @Test
+    public void test_getAsync_whenRefIsException()
+            throws ExecutionException, InterruptedException {
+        IAtomicReference atomicRef = createAtomicRef(randomName());
+        RuntimeException value = new RuntimeException("boom");
+        atomicRef.set(value);
+        assertInstanceOf(RuntimeException.class,
+                atomicRef.getAsync().toCompletableFuture().get());
+        assertEquals(value.getMessage(),
+                ((RuntimeException) atomicRef.getAsync().toCompletableFuture().get()).getMessage());
     }
 
     @Test

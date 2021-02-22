@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * then the current thread becomes disabled for thread scheduling purposes
  * and lies dormant until other threads release enough permits.
  */
-@Generated("59f628125a8b862520c8441edd9d0244")
+@Generated("f257807ea8575dfaf24f3bacf31bb49c")
 public final class SemaphoreAcquireCodec {
     //hex: 0x0C0200
     public static final int REQUEST_MESSAGE_TYPE = 786944;
@@ -139,9 +139,9 @@ public final class SemaphoreAcquireCodec {
     }
 
     /**
-    * true if requested permits are acquired,
-    * false otherwise
-    */
+     * true if requested permits are acquired,
+     * false otherwise
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

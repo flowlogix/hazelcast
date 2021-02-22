@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class GenericFieldExtractor extends AbstractGenericExtractor {
         } catch (QueryDataTypeMismatchException e) {
             throw QueryException.dataException("Failed to extract map entry " + (key ? "key" : "value") + " field \""
                 + path + "\" because of type mismatch [expectedClass=" + e.getExpectedClass().getName()
-                + ", actualClass=" + e.getActualClass().getName() + ']').withInvalidate();
+                + ", actualClass=" + e.getActualClass().getName() + ']').markInvalidate();
         } catch (Exception e) {
             throw QueryException.dataException("Failed to extract map entry " + (key ? "key" : "value") + " field \""
                 + path + "\": " + e.getMessage(), e);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Creates an XA transaction with the given parameters.
  */
-@Generated("70278ae8ef7f760acbc1566756b4f443")
+@Generated("5594023edb0a24d293808940bbf5b703")
 public final class XATransactionCreateCodec {
     //hex: 0x140500
     public static final int REQUEST_MESSAGE_TYPE = 1312000;
@@ -97,8 +97,8 @@ public final class XATransactionCreateCodec {
     }
 
     /**
-    * The transaction unique identifier.
-    */
+     * The transaction unique identifier.
+     */
     public static java.util.UUID decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

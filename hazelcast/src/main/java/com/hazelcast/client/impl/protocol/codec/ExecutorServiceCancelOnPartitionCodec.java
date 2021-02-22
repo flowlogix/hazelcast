@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Cancels the task running on the member that owns the partition with the given id.
  */
-@Generated("211a5b67ae88699c09e7c633883ff60f")
+@Generated("5f2a73d2fe9a3dd98a86e7ae86c771a0")
 public final class ExecutorServiceCancelOnPartitionCodec {
     //hex: 0x080300
     public static final int REQUEST_MESSAGE_TYPE = 525056;
@@ -98,8 +98,8 @@ public final class ExecutorServiceCancelOnPartitionCodec {
     }
 
     /**
-    * True if cancelled successfully, false otherwise.
-    */
+     * True if cancelled successfully, false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

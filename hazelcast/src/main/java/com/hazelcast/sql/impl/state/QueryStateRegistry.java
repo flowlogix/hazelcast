@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,11 @@ package com.hazelcast.sql.impl.state;
 
 import com.hazelcast.sql.SqlRowMetadata;
 import com.hazelcast.sql.impl.ClockProvider;
+import com.hazelcast.sql.impl.QueryException;
 import com.hazelcast.sql.impl.QueryId;
 import com.hazelcast.sql.impl.QueryResultProducer;
-import com.hazelcast.sql.impl.plan.cache.CachedPlanInvalidationCallback;
 import com.hazelcast.sql.impl.plan.Plan;
+import com.hazelcast.sql.impl.plan.cache.CachedPlanInvalidationCallback;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -36,6 +37,8 @@ public class QueryStateRegistry {
 
     private final ClockProvider clockProvider;
 
+    private volatile boolean shutdown;
+
     public QueryStateRegistry(ClockProvider clockProvider) {
         this.clockProvider = clockProvider;
     }
@@ -44,6 +47,7 @@ public class QueryStateRegistry {
      * Registers a query on the initiator member before the query is started on participants.
      */
     public QueryState onInitiatorQueryStarted(
+        QueryId queryId,
         UUID localMemberId,
         long initiatorTimeout,
         Plan initiatorPlan,
@@ -52,8 +56,6 @@ public class QueryStateRegistry {
         QueryResultProducer initiatorResultProducer,
         QueryStateCompletionCallback completionCallback
     ) {
-        QueryId queryId = QueryId.create(localMemberId);
-
         QueryState state = QueryState.createInitiatorState(
             queryId,
             localMemberId,
@@ -68,6 +70,13 @@ public class QueryStateRegistry {
 
         states.put(queryId, state);
 
+        if (shutdown) {
+            // No members or fragments observed the state so far. So we just remove it from map and throw the proper exception.
+            states.remove(queryId);
+
+            throw shutdownException();
+        }
+
         return state;
     }
 
@@ -81,17 +90,34 @@ public class QueryStateRegistry {
      * of these events. This is not a problem, because {@link QueryStateRegistryUpdater} will eventually detect that
      * the query is not longer active on the initiator member.
      *
-     * @param localMemberId Cache local member ID.
-     * @param queryId Query ID.
-     * @param completionCallback Callback that will be invoked when the query is completed.
-     * @return Query state or {@code null} if the query with the given ID is guaranteed to be already completed.
+     * @param localMemberId cached local member ID
+     * @param queryId query ID
+     * @param completionCallback callback that will be invoked when the query is completed
+     * @param cancelled if the query should be created in the cancelled state
+     * @return query state or {@code null} if the query with the given ID is guaranteed to be already completed
      */
     public QueryState onDistributedQueryStarted(
         UUID localMemberId,
         QueryId queryId,
-        QueryStateCompletionCallback completionCallback
+        QueryStateCompletionCallback completionCallback,
+        boolean cancelled
     ) {
-        UUID initiatorMemberId =  queryId.getMemberId();
+        QueryState state = onDistributedQueryStarted0(localMemberId, queryId, completionCallback, cancelled);
+
+        if (state != null) {
+            state.updateLastActivityTime();
+        }
+
+        return state;
+    }
+
+    private QueryState onDistributedQueryStarted0(
+        UUID localMemberId,
+        QueryId queryId,
+        QueryStateCompletionCallback completionCallback,
+        boolean cancelled
+    ) {
+        UUID initiatorMemberId = queryId.getMemberId();
 
         boolean local = localMemberId.equals(initiatorMemberId);
 
@@ -107,6 +133,7 @@ public class QueryStateRegistry {
                     queryId,
                     localMemberId,
                     completionCallback,
+                    cancelled,
                     clockProvider
                 );
 
@@ -114,6 +141,12 @@ public class QueryStateRegistry {
 
                 if (oldState != null) {
                     state = oldState;
+                }
+
+                if (shutdown) {
+                    cancelOnShutdown(state);
+
+                    return null;
                 }
             }
 
@@ -130,15 +163,14 @@ public class QueryStateRegistry {
         states.remove(queryId);
     }
 
-    /**
-     * Clears the registry. The method is called in case of recovery from the split brain.
-     * <p>
-     *  No additional precautions (such as forceful completion of already running queries) are needed, because a new ID
-     *  is assigned to the local member, and a member with the previous ID is declared dead. As a result,
-     *  {@link QueryStateRegistryUpdater} will detect that old queries have missing members, and will cancel them.
-     */
-    public void reset() {
-        states.clear();
+    public void shutdown() {
+        // Set shutdown flag.
+        shutdown = true;
+
+        // Cancel active queries.
+        for (QueryState state : states.values()) {
+            cancelOnShutdown(state);
+        }
     }
 
     public QueryState getState(QueryId queryId) {
@@ -147,5 +179,13 @@ public class QueryStateRegistry {
 
     public Collection<QueryState> getStates() {
         return states.values();
+    }
+
+    private static void cancelOnShutdown(QueryState state) {
+        state.cancel(shutdownException(), true);
+    }
+
+    private static QueryException shutdownException() {
+        return QueryException.error("SQL query has been cancelled due to member shutdown");
     }
 }

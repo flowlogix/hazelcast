@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Return the all elements of this collection
  */
-@Generated("3d29524a9b1d91724275d003058a23fc")
+@Generated("2495dd864050bf41762ff405af9ba1fd")
 public final class ListGetAllCodec {
     //hex: 0x050A00
     public static final int REQUEST_MESSAGE_TYPE = 330240;
@@ -47,12 +47,6 @@ public final class ListGetAllCodec {
 
     private ListGetAllCodec() {
     }
-
-    /**
-     * Name of the List
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class ListGetAllCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the List
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -84,8 +81,8 @@ public final class ListGetAllCodec {
     }
 
     /**
-    * An array of all item values in the list.
-    */
+     * An array of all item values in the list.
+     */
     public static java.util.List<com.hazelcast.internal.serialization.Data> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+  ~ Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-root</artifactId>
-        <version>4.1-SNAPSHOT</version>
+        <version>4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -73,7 +73,6 @@
                         </goals>
                         <configuration>
                             <shadedArtifactId>hazelcast-all</shadedArtifactId>
-                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <minimizeJar>false</minimizeJar>
                             <createSourcesJar>true</createSourcesJar>
@@ -108,17 +107,29 @@
                                             javax.naming.*;resolution:=optional
                                         </Import-Package>
                                     </overrideInstructions>
+                                    <manifestEntries>
+                                        <Bundle-Name>Hazelcast(All)</Bundle-Name>
+                                    </manifestEntries>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
                             </transformers>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>com.hazelcast:hazelcast-aws</artifact>
+                                    <excludes>
+                                        <exclude>hazelcast-community-license.txt</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -157,7 +168,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-kubernetes</artifactId>
-            <version>2.1</version>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -183,6 +194,12 @@
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-sql</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hazelcast</groupId>
+                    <artifactId>hazelcast-sql-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>

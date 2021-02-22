@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Creates a session for the caller on the given CP group.
  */
-@Generated("8b19b65ccbe129df1efda58e75a148c2")
+@Generated("777a1f9476cc9381b61757f299b9ef30")
 public final class CPSessionCreateSessionCodec {
     //hex: 0x1F0100
     public static final int REQUEST_MESSAGE_TYPE = 2031872;
@@ -90,14 +90,17 @@ public final class CPSessionCreateSessionCodec {
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
     public static class ResponseParameters {
+
         /**
          * Id of the session.
          */
         public long sessionId;
+
         /**
          * Time to live value in milliseconds that must be respected by the caller.
          */
         public long ttlMillis;
+
         /**
          * Time between heartbeats in milliseconds that must be respected by the caller.
          */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Gets the effective config of a member rendered as XML.
  */
-@Generated("a21ad0545aeaed17c65918ac941677ec")
+@Generated("3fcac73665155f903fecd9f547f6a01c")
 public final class MCGetMemberConfigCodec {
     //hex: 0x200500
     public static final int REQUEST_MESSAGE_TYPE = 2098432;
@@ -47,7 +47,6 @@ public final class MCGetMemberConfigCodec {
 
     private MCGetMemberConfigCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -72,8 +71,8 @@ public final class MCGetMemberConfigCodec {
     }
 
     /**
-    * Effective config of a member rendered as XML.
-    */
+     * Effective config of a member rendered as XML.
+     */
     public static java.lang.String decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

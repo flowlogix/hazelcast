@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public final class MapTableUtils {
     public static long estimatePartitionedMapRowCount(NodeEngine nodeEngine, MapServiceContext context, String mapName) {
         long entryCount = 0L;
 
-        PartitionIdSet ownerPartitions = context.getOwnedPartitions();
+        PartitionIdSet ownerPartitions = context.getOrInitCachedMemberPartitions();
 
         for (PartitionContainer partitionContainer : context.getPartitionContainers()) {
             if (!ownerPartitions.contains(partitionContainer.getPartitionId())) {

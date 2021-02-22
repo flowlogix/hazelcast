@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.SqlCloseCodec;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Connection;
-import com.hazelcast.security.permission.SqlPermission;
 import com.hazelcast.sql.impl.QueryId;
 import com.hazelcast.sql.impl.SqlInternalService;
 
@@ -75,6 +74,6 @@ public class SqlCloseMessageTask extends SqlAbstractMessageTask<QueryId> {
 
     @Override
     public Permission getRequiredPermission() {
-        return new SqlPermission();
+        return null;
     }
 }

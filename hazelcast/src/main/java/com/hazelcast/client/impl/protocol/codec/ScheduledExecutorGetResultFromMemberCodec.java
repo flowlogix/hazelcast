@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Fetches the result of the task ({@link java.util.concurrent.Callable})
  * The call will blocking until the result is ready.
  */
-@Generated("a8c72a5bcf77932c37772e4abb635029")
+@Generated("0f652ad86b160e5e443ed0c3cc4a35a5")
 public final class ScheduledExecutorGetResultFromMemberCodec {
     //hex: 0x1A1000
     public static final int REQUEST_MESSAGE_TYPE = 1708032;
@@ -104,8 +104,8 @@ public final class ScheduledExecutorGetResultFromMemberCodec {
     }
 
     /**
-    * The result of the completed task, in serialized form ({
-    */
+     * The result of the completed task, in serialized form ({
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

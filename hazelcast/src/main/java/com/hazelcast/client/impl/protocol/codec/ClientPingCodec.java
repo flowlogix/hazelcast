@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Sends a ping to the given connection.
  */
-@Generated("a4672984603df3c1cc3a5ebaf6e2bb08")
+@Generated("7f0ca0f16414843d6ad8a9250a6b06fe")
 public final class ClientPingCodec {
     //hex: 0x000B00
     public static final int REQUEST_MESSAGE_TYPE = 2816;
@@ -47,7 +47,6 @@ public final class ClientPingCodec {
 
     private ClientPingCodec() {
     }
-
 
     public static ClientMessage encodeRequest() {
         ClientMessage clientMessage = ClientMessage.createForEncode();

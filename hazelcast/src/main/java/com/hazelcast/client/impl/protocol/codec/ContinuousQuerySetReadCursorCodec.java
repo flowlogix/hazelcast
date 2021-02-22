@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * This method returns `false` if the event is not in the buffer of event publisher side. That means recovery is not
  * possible.
  */
-@Generated("c821ec8965ffc06282bb4664fe704c71")
+@Generated("e9c475303131544a53eda80dfeb7e416")
 public final class ContinuousQuerySetReadCursorCodec {
     //hex: 0x160500
     public static final int REQUEST_MESSAGE_TYPE = 1443072;
@@ -109,8 +109,8 @@ public final class ContinuousQuerySetReadCursorCodec {
     }
 
     /**
-    * True if the cursor position could be set, false otherwise.
-    */
+     * True if the cursor position could be set, false otherwise.
+     */
     public static boolean decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         ClientMessage.Frame initialFrame = iterator.next();

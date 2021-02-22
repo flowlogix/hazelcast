@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,6 @@ import com.hazelcast.spi.impl.InternalCompletableFuture;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static com.hazelcast.internal.util.CollectionUtil.objectToDataCollection;
 import static com.hazelcast.internal.util.ExceptionUtil.rethrow;
@@ -218,17 +216,11 @@ public class ClientRingbufferProxy<E> extends ClientProxy implements Ringbuffer<
 
     protected <T> T invoke(ClientMessage clientMessage, int partitionId) {
         try {
-            Future future = new ClientInvocation(getClient(), clientMessage, getName(), partitionId).invoke();
-            return (T) future.get();
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof StaleSequenceException) {
-                StaleSequenceException se = (StaleSequenceException) e.getCause();
-                long l = headSequence();
-                throw new StaleSequenceException(se.getMessage(), l);
-            }
-            throw rethrow(e);
-        } catch (Exception e) {
-            throw rethrow(e);
+            ClientInvocationFuture future = new ClientInvocation(getClient(), clientMessage, getName(), partitionId).invoke();
+            return (T) future.joinInternal();
+        } catch (StaleSequenceException e) {
+            long l = headSequence();
+            throw new StaleSequenceException(e.getMessage(), l);
         }
     }
 

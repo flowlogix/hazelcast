@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns a lazy collection view of the values contained in this map.
  */
-@Generated("ab990d9c4d06fa3ac498d0aca6d6a02b")
+@Generated("aae189b4896b08394dd4cb5986129273")
 public final class ReplicatedMapValuesCodec {
     //hex: 0x0D1000
     public static final int REQUEST_MESSAGE_TYPE = 856064;
@@ -47,12 +47,6 @@ public final class ReplicatedMapValuesCodec {
 
     private ReplicatedMapValuesCodec() {
     }
-
-    /**
-     * Name of the ReplicatedMap
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class ReplicatedMapValuesCodec {
         return clientMessage;
     }
 
+    /**
+     * Name of the ReplicatedMap
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -84,8 +81,8 @@ public final class ReplicatedMapValuesCodec {
     }
 
     /**
-    * A collection view of the values contained in this map.
-    */
+     * A collection view of the values contained in this map.
+     */
     public static java.util.List<com.hazelcast.internal.serialization.Data> decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

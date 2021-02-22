@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,12 +58,19 @@ public final class QueryState implements QueryStateCallback {
     /** Local member ID. */
     private final UUID localMemberId;
 
+    /** Whether the state is created in the cancelled state right away. */
+    private final boolean cancelled;
+
     /** Error which caused query completion. */
     private volatile QueryException completionError;
 
     /** Time when the a check was performed for the last time. */
     private volatile long checkTime;
 
+    /** Time when the query was know to be active for the last time. */
+    private volatile long lastActivityTime;
+
+    @SuppressWarnings("checkstyle:ParameterNumber")
     private QueryState(
         QueryId queryId,
         UUID localMemberId,
@@ -74,7 +81,8 @@ public final class QueryState implements QueryStateCallback {
         CachedPlanInvalidationCallback initiatorPlanInvalidationCallback,
         SqlRowMetadata initiatorRowMetadata,
         QueryResultProducer initiatorRowSource,
-        ClockProvider clockProvider
+        ClockProvider clockProvider,
+        boolean cancelled
     ) {
         // Set common state.
         this.queryId = queryId;
@@ -98,6 +106,14 @@ public final class QueryState implements QueryStateCallback {
 
         startTime = clockProvider.currentTimeMillis();
         checkTime = startTime;
+
+        this.cancelled = cancelled;
+
+        if (cancelled) {
+            completionGuard.set(true);
+        }
+
+        lastActivityTime = clockProvider.currentTimeMillis();
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -122,7 +138,8 @@ public final class QueryState implements QueryStateCallback {
             initiatorPlanInvalidationCallback,
             initiatorRowMetadata,
             initiatorResultProducer,
-            clockProvider
+            clockProvider,
+            false
         );
     }
 
@@ -136,6 +153,7 @@ public final class QueryState implements QueryStateCallback {
         QueryId queryId,
         UUID localMemberId,
         QueryStateCompletionCallback completionCallback,
+        boolean cancelled,
         ClockProvider clockProvider
     ) {
         return new QueryState(
@@ -148,7 +166,8 @@ public final class QueryState implements QueryStateCallback {
             null,
             null,
             null,
-            clockProvider
+            clockProvider,
+            cancelled
         );
     }
 
@@ -176,6 +195,10 @@ public final class QueryState implements QueryStateCallback {
         return distributedState;
     }
 
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
     @Override
     public void onFragmentFinished() {
         if (distributedState.onFragmentFinished()) {
@@ -190,19 +213,21 @@ public final class QueryState implements QueryStateCallback {
     }
 
     @Override
-    public void cancel(@Nullable Exception error) {
-        // Make sure that this thread changes the state.
+    public void cancel(@Nullable Exception error, boolean local) {
+        // Make sure that cancel is performed only once.
         if (!completionGuard.compareAndSet(false, true)) {
             return;
         }
 
+        // Prepare the normalized exception object.
         if (error == null) {
             error = QueryException.cancelledByUser();
         }
 
         QueryException error0 = prepareCancelError(error);
 
-        // Invalidate plan if needed.
+        // Invalidate the plan if needed. Do this before user notification (see below), to minimize the chance that the
+        // user will pick te same bad plan immediately.
         if (isInitiator() && error0.isInvalidatePlan()) {
             CachedPlanInvalidationCallback planInvalidationCallback = initiatorState.getPlanInvalidationCallback();
 
@@ -211,17 +236,26 @@ public final class QueryState implements QueryStateCallback {
             }
         }
 
-        // Determine members which should be notified.
+        // Notify user about the error.
+        if (isInitiator()) {
+            initiatorState.getResultProducer().onError(error0);
+        }
+
+        // Notify fragments about the error.
+        completionError = error0;
+
+        // Determine which members should be notified.
         Collection<UUID> memberIds;
 
-        if (isInitiator()) {
+        if (local) {
+            // Local cancel, do not send messages.
+            memberIds = Collections.emptySet();
+        } else if (isInitiator()) {
             // Cancel is performed on an initiator. Broadcast to all participants.
             memberIds = new HashSet<>(getParticipants());
             memberIds.remove(localMemberId);
         } else {
-            boolean isLocal = error0.getOriginatingMemberId().equals(localMemberId);
-
-            if (isLocal) {
+            if (error0.getOriginatingMemberId().equals(localMemberId)) {
                 // The cancel has been triggered locally. Notify initiator.
                 memberIds = Collections.singletonList(queryId.getMemberId());
             } else {
@@ -230,7 +264,7 @@ public final class QueryState implements QueryStateCallback {
             }
         }
 
-        // Invoke the completion callback.
+        // Invoke the completion callback that will send cancel message to other members, and remove the state from the registry.
         assert completionCallback != null;
 
         completionCallback.onError(
@@ -240,13 +274,6 @@ public final class QueryState implements QueryStateCallback {
             error0.getOriginatingMemberId(),
             memberIds
         );
-
-        completionError = error0;
-
-        // If this is the initiator
-        if (isInitiator()) {
-            initiatorState.getResultProducer().onError(error0);
-        }
     }
 
     private QueryException prepareCancelError(Exception error) {
@@ -254,13 +281,7 @@ public final class QueryState implements QueryStateCallback {
             QueryException error0 = (QueryException) error;
 
             if (error0.getOriginatingMemberId() == null) {
-                boolean invalidatePlan = error0.isInvalidatePlan();
-
-                error0 = QueryException.error(error0.getCode(), error0.getMessage(), error0.getCause(), localMemberId);
-
-                if (invalidatePlan) {
-                    error0 = error0.withInvalidate();
-                }
+                error0.setOriginatingMemberId(localMemberId);
             }
 
             return error0;
@@ -300,7 +321,7 @@ public final class QueryState implements QueryStateCallback {
 
         assert !missingMemberIds.isEmpty();
 
-        cancel(QueryException.memberConnection(missingMemberIds));
+        cancel(QueryException.memberConnection(missingMemberIds), false);
 
         return true;
     }
@@ -318,7 +339,7 @@ public final class QueryState implements QueryStateCallback {
         long timeout = initiatorState.getTimeout();
 
         if (timeout > 0 && clockProvider.currentTimeMillis() - startTime > timeout) {
-            cancel(QueryException.timeout(timeout));
+            cancel(QueryException.timeout(timeout), false);
 
             return true;
         } else {
@@ -329,28 +350,30 @@ public final class QueryState implements QueryStateCallback {
     /**
      * Check if the query check is required for the given query.
      *
-     * @param checkFrequency Frequency of state checks in milliseconds.
-     * @return {@code true} if query check should be initiated, {@code false} otherwise.
+     * @param checkFrequency frequency of state checks in milliseconds
+     * @param orphanedQueryStateCheckFrequency frequency of checks for initialized queries with no network activity
+     * @return {@code true} if query check should be initiated, {@code false} otherwise
      */
-    public boolean requestQueryCheck(long checkFrequency) {
+    public boolean requestQueryCheck(long checkFrequency, long orphanedQueryStateCheckFrequency) {
         // No need to check the initiator because creation of its state happens-before sending of any messages,
         // so it is never stale.
         if (isInitiator()) {
             return false;
         }
 
-        // If the state received an EXECUTE request, then no need to check it because EXECUTE happens-before any CANCEL
-        // request.
-        if (distributedState.isStarted()) {
-            return false;
-        }
-
         long currentTime = clockProvider.currentTimeMillis();
 
-        if (currentTime - checkTime < checkFrequency) {
+        if (distributedState.isStarted() && currentTime - lastActivityTime < orphanedQueryStateCheckFrequency) {
+            // If the query is initiated and there is recent activity, do not initiate the check.
             return false;
         }
 
+        if (currentTime - checkTime < checkFrequency) {
+            // The query is suspicious, but the previous check was performed recently.
+            return false;
+        }
+
+        // Initiate the check.
         checkTime = currentTime;
 
         return true;
@@ -363,6 +386,13 @@ public final class QueryState implements QueryStateCallback {
         if (completionError0 != null) {
             throw completionError0;
         }
+    }
+
+    /**
+     * Update the time when the query was known to be active for the last time.
+     */
+    public void updateLastActivityTime() {
+        lastActivityTime = clockProvider.currentTimeMillis();
     }
 
     private Collection<UUID> getParticipants() {

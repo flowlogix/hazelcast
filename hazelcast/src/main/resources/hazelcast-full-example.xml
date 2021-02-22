@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+  ~ Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
   the directory where you start your Hazelcast member.
 
   To learn how to configure Hazelcast, please see the schema at
-  https://hazelcast.com/schema/config/hazelcast-config-4.1.xsd
+  https://hazelcast.com/schema/config/hazelcast-config-4.2.xsd
   or the Reference Manual at https://hazelcast.org/documentation/
 -->
 
@@ -31,7 +31,7 @@
 <hazelcast xmlns="http://www.hazelcast.com/schema/config"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://www.hazelcast.com/schema/config
-           http://www.hazelcast.com/schema/config/hazelcast-config-4.1.xsd">
+           http://www.hazelcast.com/schema/config/hazelcast-config-4.2.xsd">
 
     <!--
         You can use the <import> element to load different Hazelcast declarative configuration files you prepared.
@@ -553,8 +553,8 @@
             </properties>
         </ssl>
         * <socket-interceptor>:
-        Lets you add custom hooks to join and perform connection procedures (like identity checking using
-        Kerberos, etc.). This feature is available only in Hazelcast Enterprise. To be able to use it, you
+        Lets you add custom hooks to join and perform connection procedures (like a custom authentication negotiation
+        protocol, etc.). This feature is available only in Hazelcast Enterprise. To be able to use it, you
         should first implement the MemberSocketInterceptor (for members joining to a cluster) or
         SocketInterceptor (for clients connecting to a member) class. Its configuration contains the class you
         implemented and socket interceptor properties. By default, it is disabled. The following is an example:
@@ -563,8 +563,8 @@
                 com.hazelcast.examples.MySocketInterceptor
             </class-name>
             <properties>
-                <property name="kerberos-host">kerb-host-name</property>
-                <property name="kerberos-config-file">kerb.conf</property>
+                <property name="property1">value1</property>
+                <property name="property2">value2</property>
             </properties>
         </socket-interceptor>
         * <symmetric-encryption>:
@@ -1028,9 +1028,13 @@
             Data will be stored in the map that uses Hazelcast's High-Density Memory Store feature. This
             option is available only in Hazelcast Enterprise HD.
         * <statistics-enabled>:
-            When you enable it, you can retrieve map entry statistics such as creation time, expiration time,
-            number of hits, key, value, etc. Its default value is true.
-       * "<eviction>":
+            When you enable it, you can have map level statistics such as last access time to map,
+            total number of hits, key, value, etc. Its default value is true.
+        * <per-entry-stats-enabled>:
+            Enable/disable per entry statistics. Its default value is false.
+            When you enable it, you can retrieve entry level statistics such as hits, creation time,
+            last access time, last update time,last stored time.
+        * "<eviction>":
            By default map has no eviction configured. Its <eviction-policy> is NONE.
            To make it work you have to configure it.
            Configuration has the following attributes:
@@ -1295,6 +1299,7 @@
         <in-memory-format>BINARY</in-memory-format>
         <metadata-policy>CREATE_ON_UPDATE</metadata-policy>
         <statistics-enabled>true</statistics-enabled>
+        <per-entry-stats-enabled>false</per-entry-stats-enabled>
         <cache-deserialized-values>ALWAYS</cache-deserialized-values>
         <backup-count>1</backup-count>
         <async-backup-count>0</async-backup-count>
@@ -2045,6 +2050,8 @@
             Set as true to enable shared object when default Java serialization is used. Its default value is false.
         * <allow-unsafe>:
             Set as true to allow the usage of unsafe. Its default value is false.
+        * <allow-override-default-serializers>:
+            Set as true to allow override of default serializers. Its default value is false.
         * <data-serializable-factories>:
             Lists your class implementations of Hazelcast's DataSerializableFactory using the <data-serializable-factory>
             sub-elements. Each factory has the required "factory-id" attribute that you should give as the ID of your
@@ -2152,7 +2159,7 @@
         <!-- Simple configuration for single-socket machines with non-volatile memory -->
         <!-- <persistent-memory-directory>/mnt/optane</persistent-memory-directory> -->
         <!-- Advanced configuration for non-volatile memory -->
-        <persistent-memory>
+        <persistent-memory enabled="true" mode="MOUNTED">
             <directories>
                 <directory numa-node="0">/mnt/pmem0</directory>
                 <directory numa-node="1">/mnt/pmem1</directory>
@@ -2321,6 +2328,21 @@
                     </kerberos>
                 </identity>
             </realm>
+            <realm name="simpleKerberosRealm">
+                <authentication>
+                    <kerberos>
+                        <principal>hz/127.0.0.1@HAZELCAST.COM</principal>
+                        <keytab-file>/opt/localhost.keytab</keytab-file>
+                    </kerberos>
+                </authentication>
+                <identity>
+                    <kerberos>
+                        <realm>HAZELCAST.COM</realm>
+                        <principal>hz/127.0.0.1@HAZELCAST.COM</principal>
+                        <keytab-file>/opt/localhost.keytab</keytab-file>
+                    </kerberos>
+                </identity>
+            </realm>
             <realm name="krb5Acceptor">
                 <authentication>
                     <jaas>
@@ -2475,11 +2497,11 @@
                     <action>all</action>
                 </actions>
             </pn-counter-permission>
-            <sql-permission>
-                <endpoints>
-                    <endpoint>127.0.0.1</endpoint>
-                </endpoints>
-            </sql-permission>
+            <replicatedmap-permission name="*">
+                <actions>
+                    <action>all</action>
+                </actions>
+            </replicatedmap-permission>
         </client-permissions>
         <client-block-unmapped-actions>true</client-block-unmapped-actions>
         <security-interceptors>
@@ -2963,8 +2985,8 @@
                     </properties>
                 </ssl>
             * <socket-interceptor>:
-                Lets you add custom hooks to join and perform connection procedures (like identity checking using
-                Kerberos, etc.). This feature is available only in Hazelcast Enterprise. To be able to use it, you
+                Lets you add custom hooks to join and perform connection procedures (like a custom authentication negotiation
+                protocol, etc.). This feature is available only in Hazelcast Enterprise. To be able to use it, you
                 should first implement the MemberSocketInterceptor (for members joining to a cluster) or
                 SocketInterceptor (for clients connecting to a member) class. Its configuration contains the class you
                 implemented and socket interceptor properties. By default, it is disabled. The following is an example:
@@ -2973,8 +2995,8 @@
                         com.hazelcast.examples.MySocketInterceptor
                     </class-name>
                     <properties>
-                        <property name="kerberos-host">kerb-host-name</property>
-                        <property name="kerberos-config-file">kerb.conf</property>
+                        <property name="property1">value1</property>
+                        <property name="property2">value2</property>
                     </properties>
                 </socket-interceptor>
             * <symmetric-encryption>:
@@ -3569,16 +3591,12 @@
         * <executor-pool-sizer>:
             Defines the number of threads responsible for query execution.
 
-        * <operation-pool-size>
-            Defines the number of threads responsible for network operations processing.
-
         * <statement-timeout-millis>
             Defines the timeout in milliseconds that is applied to queries without an explicit timeout.
 
     -->
     <sql>
         <executor-pool-size>8</executor-pool-size>
-        <operation-pool-size>8</operation-pool-size>
         <statement-timeout-millis>0</statement-timeout-millis>
     </sql>
 

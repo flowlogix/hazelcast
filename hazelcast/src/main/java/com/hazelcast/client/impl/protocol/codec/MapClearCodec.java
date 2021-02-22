@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * will delete the records from that database. The MAP_CLEARED event is fired for any registered listeners.
  * To clear a map without calling MapStore#deleteAll, use #evictAll.
  */
-@Generated("f6942c1f6ef2ca84ec4c299514567a1c")
+@Generated("05cf9c46d1080170d211c103051eefc2")
 public final class MapClearCodec {
     //hex: 0x012D00
     public static final int REQUEST_MESSAGE_TYPE = 77056;
@@ -49,12 +49,6 @@ public final class MapClearCodec {
 
     private MapClearCodec() {
     }
-
-    /**
-     * of map
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -68,6 +62,9 @@ public final class MapClearCodec {
         return clientMessage;
     }
 
+    /**
+     * of map
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

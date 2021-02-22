@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Creates a new CP group with the given name
  */
-@Generated("8c71ae8afb174b0578e79f74d1eae391")
+@Generated("d3c5d68719db334e184b9d230d867472")
 public final class CPGroupCreateCPGroupCodec {
     //hex: 0x1E0100
     public static final int REQUEST_MESSAGE_TYPE = 1966336;
@@ -47,12 +47,6 @@ public final class CPGroupCreateCPGroupCodec {
 
     private CPGroupCreateCPGroupCodec() {
     }
-
-    /**
-     * The proxy name of this data structure instance
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String proxyName;
 
     public static ClientMessage encodeRequest(java.lang.String proxyName) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -66,6 +60,9 @@ public final class CPGroupCreateCPGroupCodec {
         return clientMessage;
     }
 
+    /**
+     * The proxy name of this data structure instance
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
@@ -84,8 +81,8 @@ public final class CPGroupCreateCPGroupCodec {
     }
 
     /**
-    * ID of the CP group that contains the CP object
-    */
+     * ID of the CP group that contains the CP object
+     */
     public static com.hazelcast.cp.internal.RaftGroupId decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Applies the aggregation logic on all map entries and returns the result
  */
-@Generated("8ab8341a5bdf9295ea075d3cff7df01a")
+@Generated("1faa699ee3d5c43a4a694d8fa257b8d2")
 public final class MapAggregateCodec {
     //hex: 0x013900
     public static final int REQUEST_MESSAGE_TYPE = 80128;
@@ -96,8 +96,8 @@ public final class MapAggregateCodec {
     }
 
     /**
-    * the aggregation result
-    */
+     * the aggregation result
+     */
     public static com.hazelcast.internal.serialization.Data decodeResponse(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame

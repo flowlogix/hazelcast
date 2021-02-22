@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2021, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * called by this method. If you do want to deleteAll to be called use the clear method. The EVICT_ALL event is
  * fired for any registered listeners.
  */
-@Generated("3caa17965c7c3d426df7f10f1f3dbe9e")
+@Generated("13594adb4e6f9cc36828f8308b2831f8")
 public final class MapEvictAllCodec {
     //hex: 0x011F00
     public static final int REQUEST_MESSAGE_TYPE = 73472;
@@ -49,12 +49,6 @@ public final class MapEvictAllCodec {
 
     private MapEvictAllCodec() {
     }
-
-    /**
-     * name of map
-     */
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
-    public java.lang.String name;
 
     public static ClientMessage encodeRequest(java.lang.String name) {
         ClientMessage clientMessage = ClientMessage.createForEncode();
@@ -68,6 +62,9 @@ public final class MapEvictAllCodec {
         return clientMessage;
     }
 
+    /**
+     * name of map
+     */
     public static java.lang.String decodeRequest(ClientMessage clientMessage) {
         ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //empty initial frame
