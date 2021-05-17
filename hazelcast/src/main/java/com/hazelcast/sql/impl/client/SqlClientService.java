@@ -73,7 +73,7 @@ public class SqlClientService implements SqlService {
         if (connection == null) {
             throw rethrow(QueryException.error(
                 SqlErrorCode.CONNECTION_PROBLEM,
-                "Client must be connected to at least one data member to execute SQL queries"
+                "Client is not currently connected to the cluster."
             ));
         }
 
@@ -195,8 +195,8 @@ public class SqlClientService implements SqlService {
     /**
      * For testing only.
      */
-    public Connection getRandomConnection() {
-        Connection connection = client.getConnectionManager().getRandomConnection(false);
+    public ClientConnection getRandomConnection() {
+        ClientConnection connection = client.getConnectionManager().getRandomConnection(true);
 
         if (connection == null) {
             throw rethrow(QueryException.error(

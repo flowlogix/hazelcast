@@ -42,7 +42,6 @@ import com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.TimedExp
 import com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.TimedExpiryPolicyFactoryConfig.ExpiryPolicyType;
 import com.hazelcast.config.CacheSimpleEntryListenerConfig;
 import com.hazelcast.config.CardinalityEstimatorConfig;
-import com.hazelcast.config.Config;
 import com.hazelcast.config.CredentialsFactoryConfig;
 import com.hazelcast.config.DurableExecutorConfig;
 import com.hazelcast.config.EncryptionAtRestConfig;
@@ -141,6 +140,9 @@ import com.hazelcast.instance.EndpointQualifier;
 import com.hazelcast.instance.ProtocolType;
 import com.hazelcast.internal.config.AliasedDiscoveryConfigUtils;
 import com.hazelcast.internal.util.StringUtil;
+import com.hazelcast.jet.config.EdgeConfig;
+import com.hazelcast.jet.config.InstanceConfig;
+import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.splitbrainprotection.SplitBrainProtectionOn;
 import java.io.File;
 import java.util.ArrayList;
@@ -148,6 +150,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import com.hazelcast.spring.config.ConfigFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -221,7 +225,7 @@ public class HazelcastConfigBeanDefinitionParser extends AbstractHazelcastBeanDe
 
         SpringXmlConfigBuilder(ParserContext parserContext) {
             this.parserContext = parserContext;
-            this.configBuilder = BeanDefinitionBuilder.rootBeanDefinition(Config.class);
+            this.configBuilder = BeanDefinitionBuilder.rootBeanDefinition(ConfigFactory.class, "newConfig");
             this.mapConfigManagedMap = createManagedMap("mapConfigs");
             this.cacheConfigManagedMap = createManagedMap("cacheConfigs");
             this.queueManagedMap = createManagedMap("queueConfigs");
@@ -338,6 +342,8 @@ public class HazelcastConfigBeanDefinitionParser extends AbstractHazelcastBeanDe
                         handleSql(node);
                     } else if ("auditlog".equals(nodeName)) {
                         handleAuditlog(node);
+                    } else if ("jet".equals(nodeName)) {
+                        handleJet(node);
                     }
                 }
             }
@@ -1921,10 +1927,10 @@ public class HazelcastConfigBeanDefinitionParser extends AbstractHazelcastBeanDe
             permissionConfigBuilder.addPropertyValue("type", type);
             NamedNodeMap attributes = node.getAttributes();
             Node nameNode = attributes.getNamedItem("name");
-            String name = nameNode != null ? getTextContent(nameNode) : "*";
+            String name = nameNode != null ? getTextContent(nameNode) : null;
             permissionConfigBuilder.addPropertyValue("name", name);
             Node principalNode = attributes.getNamedItem("principal");
-            String principal = principalNode != null ? getTextContent(principalNode) : "*";
+            String principal = principalNode != null ? getTextContent(principalNode) : null;
             permissionConfigBuilder.addPropertyValue("principal", principal);
             List<String> endpoints = new ManagedList<>();
             List<String> actions = new ManagedList<>();
@@ -2113,6 +2119,25 @@ public class HazelcastConfigBeanDefinitionParser extends AbstractHazelcastBeanDe
                 }
             }
             configBuilder.addPropertyValue("auditlogConfig", builder.getBeanDefinition());
+        }
+
+        private void handleJet(Node node) {
+            BeanDefinitionBuilder jetConfigBuilder = createBeanBuilder(JetConfig.class);
+            for (Node child : childElements(node)) {
+                String nodeName = cleanNodeName(child);
+                if ("instance".equals(nodeName)) {
+                    BeanDefinitionBuilder instanceConfigBuilder = createBeanBuilder(InstanceConfig.class);
+                    fillValues(child, instanceConfigBuilder);
+                    jetConfigBuilder.addPropertyValue("instanceConfig",
+                            instanceConfigBuilder.getBeanDefinition());
+                } else if ("edge-defaults".equals(nodeName)) {
+                    BeanDefinitionBuilder edgeConfigBuilder = createBeanBuilder(EdgeConfig.class);
+                    fillValues(child, edgeConfigBuilder);
+                    jetConfigBuilder.addPropertyValue("defaultEdgeConfig",
+                            edgeConfigBuilder.getBeanDefinition());
+                }
+            }
+            configBuilder.addPropertyValue("jetConfig", jetConfigBuilder.getBeanDefinition());
         }
     }
 }

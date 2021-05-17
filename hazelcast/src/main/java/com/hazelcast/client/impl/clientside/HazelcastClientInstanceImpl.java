@@ -101,6 +101,7 @@ import com.hazelcast.internal.nio.Disposable;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.internal.util.ConcurrencyDetection;
 import com.hazelcast.internal.util.ServiceLoader;
+import com.hazelcast.jet.JetInstance;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.LoggingService;
 import com.hazelcast.map.IMap;
@@ -824,6 +825,12 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
         return sqlService;
     }
 
+    @Nonnull
+    @Override
+    public JetInstance getJetInstance() {
+        return clientExtension.getJetInstance();
+    }
+
     public void onClusterChange() {
         ILogger logger = loggingService.getLogger(HazelcastInstance.class);
         logger.info("Resetting local state of the client, because of a cluster change.");
@@ -844,8 +851,7 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
         logger.info("Clearing local state of the client, because of a cluster restart.");
 
         dispose(onClusterChangeDisposables);
-        //clear the member list version
-        clusterService.clearMemberListVersion();
+        clusterService.clearMemberList();
     }
 
     public void waitForInitialMembershipEvents() {

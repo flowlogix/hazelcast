@@ -50,7 +50,7 @@ public class IndexImpl extends AbstractIndex {
             case HASH:
                 return new UnorderedIndexStore(copyBehavior);
             case BITMAP:
-                return new BitmapIndexStore(config, ss, extractors);
+                return new BitmapIndexStore(config);
             default:
                 throw new IllegalArgumentException("unexpected index type: " + config.getType());
         }
@@ -98,5 +98,12 @@ public class IndexImpl extends AbstractIndex {
     @Override
     public boolean validatePartitionStamp(long stamp) {
         return partitionTracker.validatePartitionStamp(stamp);
+    }
+
+    @Override
+    public String toString() {
+        return "IndexImpl{"
+                + "partitionTracker=" + partitionTracker
+                + "} " + super.toString();
     }
 }

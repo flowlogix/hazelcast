@@ -144,8 +144,8 @@ public abstract class HazelcastTestSupport {
         LOGGER.fine("ASSERT_COMPLETES_STALL_TOLERANCE = " + ASSERT_COMPLETES_STALL_TOLERANCE);
         String pmemDirectories = System.getProperty("hazelcast.persistent.memory");
         PERSISTENT_MEMORY_DIRECTORIES = pmemDirectories != null ? pmemDirectories : "/tmp/pmem0,/tmp/pmem1";
-        System.setProperty(ClusterProperty.METRICS_COLLECTION_FREQUENCY.getName(), "1");
-        System.setProperty(ClusterProperty.METRICS_DEBUG.getName(), "true");
+        ClusterProperty.METRICS_COLLECTION_FREQUENCY.setSystemProperty("1");
+        ClusterProperty.METRICS_DEBUG.setSystemProperty("true");
     }
 
     protected static <T> boolean containsIn(T item1, Collection<T> collection, Comparator<T> comparator) {
@@ -191,6 +191,7 @@ public abstract class HazelcastTestSupport {
                 .setProperty(ClusterProperty.PARTITION_OPERATION_THREAD_COUNT.getName(), "2")
                 .setProperty(ClusterProperty.GENERIC_OPERATION_THREAD_COUNT.getName(), "2")
                 .setProperty(ClusterProperty.EVENT_THREAD_COUNT.getName(), "1");
+        config.getJetConfig().getInstanceConfig().setCooperativeThreadCount(2);
 
         config.getSqlConfig().setExecutorPoolSize(2);
 
@@ -847,7 +848,7 @@ public abstract class HazelcastTestSupport {
     }
 
     public static void assertContains(String actual, String expected) {
-        if (!actual.contains(expected)) {
+        if (actual == null || !actual.contains(expected)) {
             fail(format("'%s' didn't contain expected '%s'", actual, expected));
         }
     }
